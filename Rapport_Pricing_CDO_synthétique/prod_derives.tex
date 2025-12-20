@@ -121,10 +121,93 @@ Ce spread constitue la prime d'assurance annuelle qui égalise la valeur actuali
 
 
 \subsection{Collateralized Debt Obligation}
+
+Les \emph{Collateralized Debt Obligations} ou CDO sont des produits obligataires adossés
+à des dettes, résultant d'un mécanisme relativement complexe d'ingénierie financière
+appelé \emph{titrisation} (\emph{securitization}). A partir d'un panier de titres de dette (de 50 à
+10000 créances), l'émetteur synthétise des actifs obligataires. Les CDO se distinguent
+selon la nature de la dette sous-jacente : s'il s'agit de produits obligataires, on parle de
+ “\emph{Collateralized Bond Obligations}” ou CBO. Dans le cas ou le panier est constitué
+uniquement de titres de prêts, on parle de “Collateralized Loan Obligations” ou CLO.
+Bien entendu, dans le cas général, le panier est mixte. Depuis sa création dans le milieu
+des années 1990, le marché des CDO n'a cessé de se développer. En 2000, il dépassait
+les 100 Milliards de dollars d'émission.
+
+Après la crise des \emph{subprimes} de 2008 les CDO ont été pointés du doigt pour leur manque de
+transparance et difficultées d'évaluation des risques. Suite à cela le marché a chuté
+considérable\-ment cependant aujourd'hui ce marché représente toujours 23,4 milliards d'euros et
+les projections actuelles lui prédisent près de 69 milliards d'euros en 2033.
+
+Nous présentons dans cette partie les enjeux du processus de titrisation ainsi que ses mécanismes, puis les
+techniques récentes liées à la génération synthétique de tranches utilisées en trading de corrélation.
+
 \subsubsection{Titrisation}
 
+La titrisation est une technique financière qui consiste à transférer à des investisseurs des
+ actifs financiers tels que des créances (par exemple des factures émises non soldées, ou des
+prêts en cours), en les transformant, par le passage à travers une structure \emph{ad hoc} --- souvent
+un \emph{Special Purpose Vehicule}, une entité spécialement dédiée à absorbée les risques de ces
+ produits --- en titres financiers émis sur le marché des capitaux.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/Emission-CDO.png}
+    \caption{Méchanisme d'émission d'un CDO}
+    \label{fig:Emission-CDO}
+\end{figure}
+
+ L'intérêt est multiple, premièrement il permet à l'émetteur de crédit de transférer ces actifs et
+ donc ces risques à une autre entité, il n'a donc pas besoin d'accumuler des liquidités pour couvrir
+ les risques de défaut. Deuxièmement ces produits peuvent, comme nous le verrons ensuite, être les
+ sous-jacents de produits dérivés. Enfin, le plus grand intérêt est le découpage des CDO en
+\emph{tranches} de différents niveaux de risques à partir de sous-jacents de notations à priori
+quelconques. Elles se décomposent sous cette forme :
+
+\begin{itemize}
+    \item la tranche \emph{junior} ou \emph{equity} supporte les premières pertes sur l'ensemble de
+créances. Il s'agit donc d'un produit très risqué, payant un spread très élevé
+à l'investisseur. Il s'agit d'un produit purement spéculatif ;
+    \item la tranche intermédiaire, dite \emph{mezzanine} supporte les pertes au delà de la tranche
+equity, c'est un produit moyennement risqué, offrant un spread intéressant ;
+    \item la tranche \emph{senior} supporte les pertes restantes, si elles ont lieu. Elle est la moins
+soumise au risque de crédit, et offre donc un coupon faible.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/Waterfall.png}
+    \caption{Distribution des tranches et effet "\emph{waterfall}" d'un CDO}
+    \label{fig:Waterfall}
+\end{figure}
 
 \subsubsection{Les produits synthétiques}
 
+Devant le développement impressionnant du marché des CDO et la demande de
+produits de corrélation de plus en plus forte de la part des investisseurs,
+des techniques d'ingénierie financière ont donné naissance au concept des CDO
+synthétiques.
+
+De l'utilisation originelle dans les stratégies de gestion de fonds propres,
+les CDO deviennent peu à peu des produits d'investissement spéculatifs.
+
+Le principe de la titrisation synthétique est de constituer des produits tranchés à
+partir, non plus d'un ensemble de crédits ou créances, mais d'un ensemble de CDS.
+Ceci revient à dire que l'organisme émetteur créé une exposition au risque de crédit
+et de corrélation en prenant des positions sur un ensemble de CDS.
+
+L'intérêt mais également le plus grand risque de ces produits est qu'il n'est plus adossé
+à un crédit en tant que tel mais véritablement à un CDS, swaps qui peuvent être émis en
+quantités illimités et souvent non rapportée sur un même crédit --- en 2006 selon le journaliste Gregory Zuckerman il
+y avait 5 fois plus de CDO synthétiques que classiques adossés à des prêts \emph{subprime} sur le marché. De plus, là où l'intestisseur d'un \emph{cash} CDO
+classique engage les fonds \emph{ex ante} c'est à dire avant le défaut éventuel en achetant la tranche,
+l'investisseur d'un CDO synthétique engage les fonds \emph{ex post} et donc uniquement en cas de défaut.
+Ainsi, sans vérification de sa solvabilité, celui-ci peut s'exposer à un remboursement très important
+sur un grand nombre de swap pour lesquels il ne s'attendait pas à ce qu'il y ait défaut (typiquement les
+tranches \emph{senior} d'un CDO synthétique à priori sans risque).
+
+En effet, dans le cas classique les sous-jacents constituant un CDO sont décoréllés géographi\-quement, typiquement
+les crédits et les CDS associés à ceux-ci proviennent de zones géographiques diverses. La probabilité que tous ces
+swaps s'activent au sein du CDO est donc infime en théorie et donc les tranches supérieures ne devraient jamais
+être impactées même pour des crédits de très mauvaise qualité.
 
 \subsubsection{Un exemple de CDO synthétique}
