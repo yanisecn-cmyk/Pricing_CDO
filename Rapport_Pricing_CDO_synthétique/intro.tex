@@ -27,16 +27,56 @@ où la filtration $(\mathcal{F}_t)$ satisfait les conditions usuelles:
 
 \noindent Tous les processus considérés sont supposés adaptés à $(\mathcal{F}_t)$ c'est à dire, pour tout processus $(X_t)_{t\ge0}$, pour tout $t\ge0$, la variable aléatoire $X_t$ est $\mathcal{F}_t$-mesurable.
 
-\subsubsection{Actifs et numéraire}
+\subsubsection{Intérêts composés, numéraire et taux instantanés}
 
-On suppose l'existence d'un \emph{numéraire} : un actif sans risque $B=(B_t)_{t\ge 0}$
-défini par
+\paragraph{Cas déterministe}
+
+Considérons un taux annuel constant $r \in \mathbb{R}_+$, un capital initial $B_0 = 1$ et
+cherchons à calculer le capital au temps $T$ avec $n$ compositions par an :
+\begin{equation}
+    B_T^{(n)} = \left ( 1 + \frac{r}{n} \right )^{nT}
+\end{equation}
+Or :
+\begin{equation}
+    \lim_{n \to +\infty} \left ( 1 + \frac{r}{n} \right )^{nT} = e^{rT}
+\end{equation}
+Donc le capital en capitalisation continue est :
+\begin{equation}
+    B_T = e^{rT}
+\end{equation}
+A présent découpons l'intervalle $[0, T]$ en $n$ sous-intervalles :
+\begin{equation}
+    0 = t_0 < t_1 < ... < t_n = T, \quad \Delta t = \frac{T}{n}
+\end{equation}
+Et supposons sur chaque intervalle $[t_i, t_{i+1}[$ le taux constant et égal à $r(t_i)$.
+Nous pouvons alors définir le schéma d'Euler explicite tel que :
+\begin{equation}
+    \begin{cases}
+        B_0^{(n)} = 1 \\
+        B_{t_{i+1}}^{(n)} = B_{t_{i}}^{(n)} \left (1 + r(t_{i}) \Delta t \right )
+    \end{cases}
+\end{equation}
+solution de l'équation différentielle ordinaire:
+\begin{equation}
+    \dot{B}_t = r(t) B_t
+\end{equation}
+Sous l'hypothèse d'intégrabilité de $r$ sur $[0, T]$, par le théorème de Cauchy-Lipschitz 
+\footnote{En posant $f(t,B)=r(t)B$, $r$ est localement bornée sur $[0, T]$ donc $f$ est
+localement lipschitzienne et continue presque partout par rapport à la deuxième variable ce qui vérifie les
+hypothèses du théorème.} il existe une unique solution à
+ce problème que l'on nommera \emph{numéraire} : un actif sans risque $B=(B_t)_{t\ge 0}$
+vérifiant
 \begin{equation}
     B_t = \exp\!\left(\int_0^t r_s \, ds\right),
     \label{rates_formula}
 \end{equation}
-où $r_t$ est le \emph{taux instantané} (ou \emph{taux court}). Par définition, le
-processus $(r_t)_{t \ge 0}$ vérifie les hypothèses suivantes :
+Ce numéraire nous offre une mesure de la valeur monétaire au temps $t$,
+pour 1€ placé en banque au temps initial on récupère $B_t$ au temps $t$.
+
+\paragraph{Cas stochastique}
+
+Cette définition s'étend naturellement dans le cas où $r_t$ suit le processus stochastique
+de \emph{taux instantané} (ou \emph{taux court}) $(r_t)_{t \ge 0}$ vérifiant les hypothèses suivantes :
 
 \begin{itemize}
     \item \textbf{(H1) Adaptation et mesurabilité :}
@@ -56,7 +96,38 @@ processus $(r_t)_{t \ge 0}$ vérifie les hypothèses suivantes :
     assurant l'existence et l'unicité forte de la solution.
 \end{itemize}
 
-Ce numéraire nous offre une mesure de la valeur monétaire au temps $t$, pour 1€ placé en banque au temps initial on récupère $B_t$ au temps $t$. L'évolution de la valeur monétaire dépend des taux d'intérêts, dans un modèle réaliste où les taux instantanés varient constamment nous sommes obligés d'intégrer un processus stochastique ce qui explique la forme de l'équation (\ref{rates_formula}).
+Cette fois, nous définissons l'équation différentielle stochatique suivante :
+\begin{equation}
+    \begin{cases}
+        B_0 = 1 \\
+        dB_t = r_t B_t dt
+    \end{cases}
+\end{equation}
+Cette EDS est en réalité une équation différentielle aléatoire puisqu'elle
+ne comporte pas de terme de diffusion mais ses coefficients sont aléatoires. Nous cherchons
+ainsi à déterminer le champ mesurable 
+\begin{equation}
+    B : [0, T] \time \Omega \to \mathbb{R}
+\end{equation}
+vérifiant, pour tout $t \in [0, T]$,
+\begin{equation}
+    B_t(\omega) = 1 + \int_0^t r_s(\omega)B_s(\omega) ds, \quad \text{p.s.}
+\end{equation}
+Remarquons que pour $\omega \in \Omega$ fixé cette égalité est
+déterministe, l'intégrale est de Lebesgue classique.
+
+Cette fois, en posant $f(t, x, \omega) = r_t(\omega) x$ nous vérifions
+que $f$ est continue et localement lipschitzienne en $x$ et intégrable en $t$,
+il existe donc une unique solution chemin par chemin à notre équation différentielle par le
+théorème de Carathéodory \footnote{Dans le cas stochastique $(r_t)_{t\ge0}$ suit un processus non continu de manière
+générale mais mesurable donc le théorème de Carathéodory s'applique mais pas Cauchy-Lipschitz.} pour les EDO. 
+En séparant les variables et en résolvant pour tout $\omega \in \Omega$ vérifiant $\mathbf{(H2)}$
+nous obtenons la solution suivante :
+\begin{equation}
+    B_t = \exp\!\left(\int_0^t r_s \, ds\right), \quad \text{p.s.}
+\end{equation}
+
+
 
 \subsubsection{Processus de prix des actifs risqués}
 
