@@ -44,12 +44,12 @@ Considérons $\tau$ le temps de défaut de l'entité de référence, défini com
 \paragraph{Jambe fixe (premium leg).}
 
 À chaque date de coupon $T_k$, l'acheteur de protection paie un montant proportionnel au \emph{spread} (ou marge) $s$ (exprimé en taux annuel), au notionnel et à la fraction d'année. Ce paiement n’a lieu que si l’entité de référence n’a pas fait défaut avant $T_k$, c'est-à-dire si $\tau > T_k$. La valeur présente sous la mesure risque-neutre $\mathbb{P}^\ast$ de la jambe fixe est donc :
-\begin{equation}
+\begin{equation}\label{premium_leg}
     \text{JF}(s)
 = s\,N
 \sum_{k=1}^m 
 \delta_k \; \mathbb{E}^{\mathbb{P}^\ast}
-\!\left[\frac{\mathbf{1}_{\{\tau > T_k\}}}{B_{T_k}}\right].
+\!\left[\frac{\mathbf{1}_{\{\tau > T_k\}}}{N_{T_k}}\right].
 \end{equation}
 
 \paragraph{Jambe variable (protection leg).}
@@ -59,11 +59,11 @@ En cas de défaut à un temps aléatoire $\tau \le T$, le vendeur de protection 
     \text{LGD} = N(1-R).
 \end{equation}
 La valeur présente de la jambe de protection ou jambe variable est alors
-\begin{equation}
+\begin{equation}\label{protection_leg}
     \text{JV}
-= N(1-R)\,
-\mathbb{E}^{\mathbb{P}^\ast}
-\!\left[\frac{\mathbf{1}_{\{\tau \le T\}}}{B_\tau}\right].
+    = N(1-R)\,
+    \mathbb{E}^{\mathbb{P}^\ast}
+    \!\left[\frac{\mathbf{1}_{\{\tau \le T\}}}{N_\tau}\right].
 \end{equation}
 
 
@@ -80,10 +80,10 @@ s^\ast
 =
 (1-R)\;
 \frac{
-\mathbb{E}^{\mathbb{P}^\ast}\!\left[\frac{\mathbf{1}_{\{\tau \le T\}}}{B_\tau}\right]
+\mathbb{E}^{\mathbb{P}^\ast}\!\left[\frac{\mathbf{1}_{\{\tau \le T\}}}{N_\tau}\right]
 }{
 \sum_{k=1}^m 
-\delta_k \, \mathbb{E}^{\mathbb{P}^\ast}\!\left[\frac{\mathbf{1}_{\{\tau > T_k\}}}{B_{T_k}}\right]
+\delta_k \, \mathbb{E}^{\mathbb{P}^\ast}\!\left[\frac{\mathbf{1}_{\{\tau > T_k\}}}{N_{T_k}}\right]
 }.
 \]
 

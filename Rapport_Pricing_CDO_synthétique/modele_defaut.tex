@@ -1,14 +1,182 @@
 \section{Modélisation du risque de défaut}
 
-\subsection{Défaut individuel}
+\subsection{Modélisation du risque d'un CDS}
 
+La détermination du prix d'un Credit Default Swap repose sur la modélisation 
+probabiliste du temps de défaut de l'entité de référence. L'objectif de cette section 
+est d'établir le cadre théorique permettant de dériver la loi de probabilité du temps 
+de défaut, afin de calculer le spread équitable du contrat.
 
+Nous nous plaçons dans un espace probabilisé doublement filtré 
+$(\Omega, \mathcal{F}, \mathbb{P}, (\mathcal{F}_t)_{t \geq 0}, 
+(\mathcal{G}_t)_{t \geq 0})$ muni d'une probabilité risque-neutre $\mathbb{P}^*$ 
+équivalente à $\mathbb{P}$. La filtration $(\mathcal{F}_t)_{t \geq 0}$ représente 
+l'information disponible sur les marchés financiers à l'instant $t$, tandis que la 
+filtration $(\mathcal{G}_t)_{t \geq 0}$ est la filtration augmentée qui incorpore 
+l'information relative au défaut. Plus précisément, nous définissons $\mathcal{G}_t 
+= \mathcal{F}_t \vee \sigma(\{\tau \leq s\} : s \leq t)$, où $\tau$ désigne le temps 
+de défaut, variable aléatoire positive représentant l'instant du défaut de crédit.
 
-\subsection{Risques idiosyncratique et systémique}
+Considérons un CDS de maturité $T$ portant sur un notionnel $N$, avec un taux de 
+recouvrement $R$ et un spread $s$. Le principe d'absence d'opportunité d'arbitrage 
+impose l'égalité entre la valeur actualisée de la jambe premium \eqref{premium_leg} 
+et celle de la jambe protection \eqref{protection_leg}, permettant de déterminer le 
+spread de marché équitable.
 
+Pour modéliser le temps de défaut, nous adoptons une approche par intensité. Nous 
+supposons que $\tau$ admet une intensité de défaut $\lambda(t)$, processus stochastique 
+adapté à $(\mathcal{F}_t)_{t \geq 0}$. Le temps de défaut suit un processus de Poisson 
+non-homogène d'intensité $\lambda(t)$, avec probabilité de survie
+\begin{equation}
+\mathbb{P}^*(\tau > t) = \mathbb{E}^{\mathbb{P}^\ast}
+\!\left[ \exp\left(-\int_0^t \lambda(s) \, ds\right) \right],
+\end{equation}
+et densité de probabilité
+\begin{equation}
+f_\tau(t) = \mathbb{E}^{\mathbb{P}^\ast}
+\!\left[ \lambda(t) \exp\left(-\int_0^t \lambda(s) \, ds\right)\right].
+\end{equation}
 
+Lorsque l'intensité est déterministe, $\lambda(t) : \mathbb{R}_+ \to \mathbb{R}_+$, 
+la probabilité de survie devient
+\begin{equation}
+\mathbb{P}^*(\tau > t) = \exp\left(-\int_0^t \lambda(s) \, ds\right).
+\end{equation}
+Les valeurs actualisées des jambes \eqref{premium_leg} et \eqref{protection_leg} 
+peuvent alors être calculées semi-analytiquement. Le cas particulier d'une intensité 
+constante $\lambda(t) = \lambda$ conduit à une loi exponentielle 
+$\mathbb{P}^*(\tau > t) = e^{-\lambda t}$ et en effectuant l'hypothèse d'un taux constant
+$r_t=r$ il est possible d'obtenir une expression analytique pour le spread. En effet,
+considérons que la prime est payée jusqu'au défaut, la jambe fixe s'écrit alors
+\begin{equation}
+    \begin{split}
+        \text{JF}(s) &
+        = s\,N \sum_{k=1}^m \delta_k \; \mathbb{E}^{\mathbb{P}^\ast} \!\left[\frac{\mathbb{1}_{\{\tau > T_k\}}}{N_{T_k}}\right] \\
+        & = s\,N \sum_{k=1}^m \delta_k \; e^{-(r + \lambda)T_{i+1}} \\
+        & \approx s\,N \int_0^T e^{-(r + \lambda)u} du \\
+        & = s\,N \frac{1 - e^{-(r + \lambda)T}}{r + \lambda}
+    \end{split}
+\end{equation}
+De la même manière la jambe variable s'écrit
+\begin{equation}
+    \begin{split}
+        \text{JV} &
+        = N(1-R)\,\mathbb{E}^{\mathbb{P}^\ast} \!\left[\frac{\mathbb{1}_{\{\tau \le T\}}}{N_\tau}\right] \\
+        & = N(1-R)\, \int_0^T \lambda e^{ - (r + \lambda)u} du \\
+        & = N(1-R)\, \frac{\lambda}{r + \lambda} \left( 1 - e^{ - (r + \lambda)T} \right)
+    \end{split}
+\end{equation}
+En égalisant les deux termes nous obtenons le \emph{fair spread} qui satisfait \emph{l'égalité du triangle}
+\begin{equation}
+    s^\ast = (1 - R) \lambda
+\end{equation}
 
-\subsection{Modèles d'intensité}
+En pratique, l'intensité $\lambda(t)$ est déterminée à partir de la notation de crédit 
+via des tables historiques de taux de défaut par classe de notation. Le calcul du 
+spread s'effectue ensuite par simulation Monte Carlo : on génère des trajectoires du 
+processus de Poisson non-homogène d'intensité $\lambda(t)$ pour obtenir des 
+réalisations du temps de défaut, puis on calcule la moyenne empirique des flux 
+actualisés sur l'ensemble des simulations.
 
+\subsection{Défauts corrélés}
 
-\subsection{Modélisation de la dépendance de défaut}
+\subsubsection{Modèles de copules}
+
+La valorisation des tranches de CDO synthétiques requiert la modélisation de la 
+distribution jointe des temps de défaut $\tau_1, \tau_2, \ldots, \tau_n$ du 
+portefeuille. Les distributions marginales $F_i(t) = \mathbb{P}^*(\tau_i \leq t)$ 
+étant connues, il reste à spécifier la structure de dépendance.
+
+Le théorème de Sklar stipule qu'il existe une fonction de copule $C : [0,1]^n \to [0,1]$ 
+telle que
+\begin{equation}
+F(\tau_1, \tau_2, \ldots, \tau_n) = C(F_1(\tau_1), F_2(\tau_2), \ldots, F_n(\tau_n)).
+\end{equation}
+La copule $C$ encode la structure de dépendance indépendamment des marginales.
+
+\paragraph{Copule gaussienne.}
+
+La copule gaussienne suppose que les variables $\Phi^{-1}(F_i(\tau_i))$ suivent une loi 
+normale multivariée de matrice de corrélation $\Sigma$, où $\Phi$ désigne la fonction 
+de répartition de la loi normale centrée réduite. Elle s'écrit
+\begin{equation}
+C_{\Sigma}^{\text{Gauss}}(u_1, \ldots, u_n) 
+= \Phi_{\Sigma}(\Phi^{-1}(u_1), \ldots, \Phi^{-1}(u_n)),
+\end{equation}
+avec $\Phi_{\Sigma}$ la fonction de répartition de $\mathcal{N}(0, \Sigma)$. En pratique,
+on impose souvent une corrélation uniforme $\rho$ entre toutes les paires d'entités, 
+réduisant le nombre de paramètres à un seul.
+
+\paragraph{La copule de Student.}
+
+Une extension importante de la copule gaussienne est la copule de Student, qui s'écrit
+\begin{equation}
+C_{\Sigma,\nu}^{t}(u_1, \ldots, u_n) 
+= t_{\Sigma,\nu}(t_{\nu}^{-1}(u_1), \ldots, t_{\nu}^{-1}(u_n)),
+\end{equation}
+où $t_{\nu}$ désigne la fonction de répartition de la loi de Student univariée à $\nu$ 
+degrés de liberté, et $t_{\Sigma,\nu}$ celle de la loi de Student multivariée. Le 
+paramètre $\nu$ contrôle l'épaisseur des queues de distribution : plus $\nu$ est faible, 
+plus les queues sont épaisses, capturant ainsi une dépendance extrême plus forte entre 
+les défauts. Lorsque $\nu \to \infty$, la copule de Student converge vers la copule 
+gaussienne. Cette propriété permet de mieux modéliser les défauts simultanés observés 
+lors des périodes de stress financier, où la copule gaussienne tend à sous-estimer les 
+événements de queue.
+
+L'absence de formule analytique pour la distribution des pertes nécessite une 
+simulation Monte Carlo. L'algorithme génère un vecteur $\mathbf{Z} 
+= (Z_1, \ldots, Z_n) \sim \mathcal{N}(0, \Sigma)$, puis applique les transformations
+\begin{equation}
+U_i = \Phi(Z_i), \quad \tau_i = F_i^{-1}(U_i),
+\end{equation}
+pour obtenir des scénarios de défaut corrélés permettant d'estimer les prix par moyenne 
+empirique.
+
+\subsubsection{Modèles à intensité stochastique}
+
+Les modèles de copules présentent plusieurs limitations : structure de dépendance 
+statique, absence de facteurs économiques explicites, et sous-estimation de la 
+dépendance de queue. Une approche alternative décompose l'intensité de défaut de 
+chaque entité $i$ en
+\begin{equation}
+\lambda_i(t) = \lambda_i^{\text{idio}}(t) + \beta_i \cdot \lambda^{\text{syst}}(t),
+\end{equation}
+où $\lambda_i^{\text{idio}}(t)$ est la composante idiosyncratique, 
+$\lambda^{\text{syst}}(t)$ le facteur systémique commun, et $\beta_i \geq 0$ la 
+sensibilité au risque systémique.
+
+Les intensités sont modélisées par des processus stochastiques. Pour capturer les chocs 
+macroéconomiques brutaux et les variations discontinues du risque de crédit, nous 
+utilisons un processus de diffusion avec sauts pour le facteur systémique :
+\begin{equation}
+d\lambda^{\text{syst}}(t) = \kappa(\theta - \lambda^{\text{syst}}(t)) \, dt + \sigma \sqrt{\lambda^{\text{syst}}(t)} \, dW(t) + dJ(t),
+\end{equation}
+où $\kappa > 0$ est la vitesse de retour à la moyenne, $\theta > 0$ le niveau de long 
+terme, $\sigma > 0$ la volatilité, $W(t)$ un mouvement brownien, et $J(t)$ un processus 
+de Poisson composé modélisant les sauts. Le processus de sauts s'écrit
+\begin{equation}
+J(t) = \sum_{i=1}^{N(t)} Y_i,
+\end{equation}
+où $N(t)$ est un processus de Poisson d'intensité $\lambda_J$ et les $Y_i$ sont des 
+variables aléatoires i.i.d. représentant l'amplitude des sauts (typiquement positives 
+pour modéliser des augmentations soudaines du risque systémique). Cette spécification 
+permet de capturer à la fois la dynamique continue du risque via la composante 
+diffusion et les événements de crise via les sauts.
+
+La corrélation entre défauts émerge naturellement via le facteur commun 
+$\lambda^{\text{syst}}(t)$ : lorsque le risque systémique s'élève, toutes les 
+intensités augmentent simultanément, générant une dépendance dynamique et capturant la 
+dépendance de queue observée empiriquement.
+
+Pour l'évaluation numérique, une propriété clé simplifie considérablement les calculs : conditionnellement à la trajectoire du facteur systémique $\{\lambda^{\text{syst}}(s), 0 \leq s \leq T\}$, les temps de défaut des différentes entités sont indépendants. En effet, étant donné $\lambda^{\text{syst}}(t)$, chaque intensité $\lambda_i(t)$ devient un processus déterministe (à la composante idiosyncratique près, qui est indépendante entre entités), et les défauts suivent des processus de Poisson indépendants. Cette observation permet de décomposer la simulation en deux étapes : 
+\begin{enumerate}
+\item Simuler une trajectoire du facteur systémique $\lambda^{\text{syst}}(t)$ par 
+discrétisation d'Euler de l'équation de diffusion avec sauts.
+\item Conditionnellement à cette trajectoire, générer les temps de défaut de manière 
+indépendante pour chaque entité via des processus de Poisson non-homogènes d'intensité
+$\lambda_i(t) = \lambda_i^{\text{idio}}(t) + \beta_i \cdot \lambda^{\text{syst}}(t)$.
+\end{enumerate}
+Cette approche par conditionnement offre un gain computationnel substantiel comparé à 
+une simulation Monte Carlo directe de la distribution jointe, car elle réduit le 
+problème de dimension $n$ (nombre d'entités) à un problème de dimension 1 (le facteur 
+systémique) suivi de $n$ simulations indépendantes.
