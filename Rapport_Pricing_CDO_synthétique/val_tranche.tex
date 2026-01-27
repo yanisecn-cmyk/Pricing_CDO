@@ -36,13 +36,13 @@ en plusieurs tranches de subordination différente. Par exemple, une distributio
 pourrait prendre la forme suivante : Equity $[0\%, 5\%]$, Mezzanine $[5\%, 12\%]$,
 Senior $[12\%, 15\%]$, et Super-Senior $[15\%, 100\%]$.
 
-\subsection{Expected Loss et distribution des pertes}
+\subsection{Perte espérée et distribution des pertes}
 
 L'évaluation d'une tranche de CDO repose sur la connaissance de la distribution de probabilité
 de sa perte $L_{\text{tranche}}(t)$ sous la mesure risque-neutre $\mathbb{P}^*$.
 Une quantité centrale est la perte espérée de la tranche à la maturité $T$, définie par
 \begin{equation}
-\text{EL}_{\text{tranche}} = \mathbb{E}^*[L_{\text{tranche}}(T)] = \mathbb{E}^*\left[\min\left(\max(L(T) - K_1 N_{\text{tot}}, 0), (K_2 - K_1) N_{\text{tot}}\right)\right].
+\text{EL}_{\text{tranche}} = \mathbb{E}^{\mathbb{P}*}[L_{\text{tranche}}(T)] = \mathbb{E}^{\mathbb{P}*}\left[\min\left(\max(L(T) - K_1 N_{\text{tot}}, 0), (K_2 - K_1) N_{\text{tot}}\right)\right].
 \end{equation}
 
 Le calcul de cette espérance nécessite la connaissance de la distribution jointe des temps
@@ -101,14 +101,10 @@ N_{\text{restant}}(t_i) = (K_2 - K_1) N_{\text{tot}} - L_{\text{tranche}}(t_i).
 
 La valeur actualisée de la jambe premium s'écrit
 \begin{equation}
-\text{JF}(s) = s \sum_{i=1}^m \delta_i    \mathbb{E}^{\mathbb{P}^\ast}[ N_{t_i} N_{\text{restant}}(t_i)],
+\text{JF}(s) = s \sum_{i=1}^m \delta_i    \mathbb{E}^{\mathbb{P}^\ast} \left[ \frac{N_{\text{restant}}(t_i)}{B_{t_i}} \right],
 \end{equation}
-où $\delta_i = t_i - t_{i-1}$ est la fraction d'année entre deux paiements (typiquement $\Delta t_i = 0.25$
-pour une fréquence trimestrielle) et $N_{t_i} = e^{-\int_0^{t_i} r(s)ds}$ est le numéraire. En substituant
-l'expression du notionnel restant, nous obtenons
-\begin{equation}
-\text{JF}(s) = s \sum_{i=1}^m \delta_i   \mathbb{E}^{\mathbb{P}^\ast}[N_{t_i}] \left[(K_2 - K_1) N_{\text{tot}} - \mathbb{E}^{\mathbb{P}^*}[L_{\text{tranche}}(t_i)]\right].
-\end{equation}
+où $\delta_i = t_i - t_{i-1}$ est la fraction d'année entre deux paiements
+ et $B_{t_i}$ est le numéraire.
 
 \subsubsection{Jambe protection}
 
@@ -117,14 +113,12 @@ survient dans le portefeuille et que la perte cumulée du portefeuille atteint o
 d'attachement de la tranche, le vendeur effectue un paiement correspondant à l'augmentation de la 
 perte de la tranche. La valeur actualisée de la jambe protection s'exprime comme
 \begin{equation}
-\text{JV} = \mathbb{E}^{\mathbb{P}^\ast}\left[\int_0^T N_t \, dL_{\text{tranche}}(t)\right],
+\text{JV} = \mathbb{E}^{\mathbb{P}^\ast}\left[\int_0^T \frac{dL_{\text{tranche}}(t)}{B_t} \, \right],
 \end{equation}
 où $dL_{\text{tranche}}(t)$ représente l'incrément de perte de la tranche à l'instant $t$. En pratique, cette intégrale est approchée par une somme discrète sur les dates d'observation :
 \begin{equation}
-\text{JV} \approx \sum_{i=1}^m  \mathbb{E}^{\mathbb{P}^\ast}[ N_{t_i}(L_{\text{tranche}}(t_i) - L_{\text{tranche}}(t_{i-1}))].
+\text{JV} \approx \sum_{i=1}^m  \mathbb{E}^{\mathbb{P}^\ast}\left[ \frac{L_{\text{tranche}}(t_i) - L_{\text{tranche}}(t_{i-1})}{B_{t_i}} \right].
 \end{equation}
-Cette expression montre que la valeur de la jambe protection dépend des variations incrémentales 
-de la perte espérée de la tranche entre les dates successives.
 
 \subsubsection{Spread équitable}
 
@@ -134,5 +128,5 @@ Le spread équitable $s^*$ de la tranche est déterminé par la condition d'abse
 \end{equation}
 En explicitant cette condition et en isolant $s^*$, nous obtenons
 \begin{equation}
-s^* \approx \frac{\sum_{i=1}^m  \mathbb{E}^{\mathbb{P}^\ast}[N_{t_i} (L_{\text{tranche}}(t_i) - L_{\text{tranche}}(t_{i-1}))]}{\sum_{i=1}^m \delta_i  \mathbb{E}^{\mathbb{P}^\ast}[N_{t_i}] [(K_2 - K_1) N_{\text{tot}} - \mathbb{E}^{\mathbb{P}^\ast}[L_{\text{tranche}}(t_i)]]}.
+s^* \approx \frac{\sum_{i=1}^m  \mathbb{E}^{\mathbb{P}^\ast}[B_{t_i}^{-1} (L_{\text{tranche}}(t_i) - L_{\text{tranche}}(t_{i-1}))]}{\sum_{i=1}^m \delta_i  \mathbb{E}^{\mathbb{P}^\ast}[B_{t_i}^{-1}] [(K_2 - K_1) N_{\text{tot}} - \mathbb{E}^{\mathbb{P}^\ast}[L_{\text{tranche}}(t_i)]]}.
 \end{equation}

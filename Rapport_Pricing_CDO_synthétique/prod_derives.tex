@@ -49,7 +49,7 @@ Considérons $\tau$ le temps de défaut de l'entité de référence, défini com
 = s\,N
 \sum_{k=1}^m 
 \delta_k \; \mathbb{E}^{\mathbb{P}^\ast}
-\!\left[\frac{\mathbf{1}_{\{\tau > T_k\}}}{N_{T_k}}\right].
+\!\left[\frac{\mathbf{1}_{\{\tau > T_k\}}}{B_{T_k}}\right].
 \end{equation}
 
 \paragraph{Jambe variable (protection leg).}
@@ -63,7 +63,7 @@ La valeur présente de la jambe de protection ou jambe variable est alors
     \text{JV}
     = N(1-R)\,
     \mathbb{E}^{\mathbb{P}^\ast}
-    \!\left[\frac{\mathbf{1}_{\{\tau \le T\}}}{N_\tau}\right].
+    \!\left[\frac{\mathbf{1}_{\{\tau \le T\}}}{B_\tau}\right].
 \end{equation}
 
 
@@ -75,46 +75,18 @@ Un CDS s’échange à valeur nulle à l’initiation. Le spread $s^\ast$ est do
     \text{JF}(s^\ast) = \text{JV}.
 \end{equation}
 On obtient :
-\[
-s^\ast
-=
-(1-R)\;
-\frac{
-\mathbb{E}^{\mathbb{P}^\ast}\!\left[\frac{\mathbf{1}_{\{\tau \le T\}}}{N_\tau}\right]
-}{
-\sum_{k=1}^m 
-\delta_k \, \mathbb{E}^{\mathbb{P}^\ast}\!\left[\frac{\mathbf{1}_{\{\tau > T_k\}}}{N_{T_k}}\right]
-}.
-\]
-
-\paragraph{Cas particulier : modèle à intensité déterministe.}
-
-Dans un cadre standard où  le taux sans risque est constant : $r_t = r$ et l'intensité de défaut est une fonction déterministe : $\lambda : t \mapsto \lambda(t)$ la probabilité de survie est :
-\begin{equation}
-    S(t)=\exp\!\left(-\int_0^t \lambda(u)\, du\right),
-\end{equation}
-et la densité de défaut sous la mesure risque-neutre est $\lambda(t)\,S(t)$.
-
-\noindent Alors la jambe variable est donnée par :
-
-\begin{equation}
-    \text{JV} = N(1-R) \int_0^T e^{-rt}\lambda(t)\,S(t)\,dt,
-\end{equation}
-et la jambe fixe par :
-\begin{equation}
-    \text{JF}(s) = s\,N \sum_{k=1}^m \delta_k \, e^{-rT_k} S(T_k).
-\end{equation}
-Le spread s'écrit :
 \begin{equation}
     s^\ast
     =
     (1-R)\;
     \frac{
-    \int_0^T e^{-rt}\lambda(t)\,S(t)\,dt
+    \mathbb{E}^{\mathbb{P}^\ast}\!\left[\frac{\mathbf{1}_{\{\tau \le T\}}}{B_\tau}\right]
     }{
-    \sum_{k=1}^m \delta_k \, e^{-rT_k} S(T_k)
+    \sum_{k=1}^m 
+    \delta_k \, \mathbb{E}^{\mathbb{P}^\ast}\!\left[\frac{\mathbf{1}_{\{\tau > T_k\}}}{B_{T_k}}\right]
     }.
 \end{equation}
+
 
 Ce spread constitue la prime d'assurance annuelle qui égalise la valeur actualisée des paiements fixes et celle du paiement contingent versé en cas de défaut de l'entité sous-jacente.
 
@@ -209,5 +181,3 @@ En effet, dans le cas classique les sous-jacents constituant un CDO sont décor�
 les crédits et les CDS associés à ceux-ci proviennent de zones géographiques diverses. La probabilité que tous ces
 swaps s'activent au sein du CDO est donc infime en théorie et donc les tranches supérieures ne devraient jamais
 être impactées même pour des crédits de très mauvaise qualité.
-
-\subsubsection{Un exemple de CDO synthétique}

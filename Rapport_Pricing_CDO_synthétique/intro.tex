@@ -34,7 +34,7 @@ où la filtration $(\mathcal{F}_t)$ satisfait les conditions usuelles:
 Considérons un taux annuel constant $r \in \mathbb{R}$, un capital initial $N_0 = 1$ et
 cherchons à calculer le capital au temps $T$ avec $n$ compositions par an :
 \begin{equation}
-    N_T^{(n)} = \left ( 1 + \frac{r}{n} \right )^{nT}
+    B_T^{(n)} = \left ( 1 + \frac{r}{n} \right )^{nT}
 \end{equation}
 Or :
 \begin{equation}
@@ -42,7 +42,7 @@ Or :
 \end{equation}
 Donc le capital en capitalisation continue est :
 \begin{equation}
-    N_T = e^{rT}
+    B_T = e^{rT}
 \end{equation}
 A présent découpons l'intervalle $[0, T]$ en $n$ sous-intervalles :
 \begin{equation}
@@ -52,26 +52,26 @@ Et supposons sur chaque intervalle $[t_i, t_{i+1}[$ le taux constant et égal à
 Nous pouvons alors définir le schéma d'Euler explicite tel que :
 \begin{equation}
     \begin{cases}
-        N_0^{(n)} = 1 \\
-        N_{t_{i+1}}^{(n)} = N_{t_{i}}^{(n)} \left (1 + r(t_{i}) \Delta t \right )
+        B_0^{(n)} = 1 \\
+        B_{t_{i+1}}^{(n)} = B_{t_{i}}^{(n)} \left (1 + r(t_{i}) \Delta t \right )
     \end{cases}
 \end{equation}
 solution de l'équation différentielle ordinaire:
 \begin{equation}
-    \dot{N}_t = r(t) N_t
+    \dot{B}_t = r(t) B_t
 \end{equation}
 Sous l'hypothèse d'intégrabilité de $r$ sur $[0, T]$, par le théorème de Cauchy-Lipschitz 
-\footnote{En posant $f(t,N)=r(t)N$, $r$ est localement bornée sur $[0, T]$ donc $f$ est
+\footnote{En posant $f(t,B)=r(t)B$, $r$ est localement bornée sur $[0, T]$ donc $f$ est
 localement lipschitzienne et continue presque partout par rapport à la deuxième variable ce qui vérifie les
 hypothèses du théorème.} il existe une unique solution à
-ce problème que l'on nommera \emph{numéraire} : un actif sans risque $N=(N_t)_{t\ge 0}$
+ce problème que l'on nommera \emph{numéraire} : un actif sans risque $B=(B_t)_{t\ge 0}$
 vérifiant
 \begin{equation}
-    N_t = \exp\!\left(\int_0^t r_s \, ds\right),
+    B_t = \exp\!\left(\int_0^t r_s \, ds\right),
     \label{rates_formula}
 \end{equation}
 Ce numéraire nous offre une mesure de la valeur monétaire au temps $t$,
-pour 1€ placé en banque au temps initial on récupère $N_t$ au temps $t$.
+pour 1€ placé en banque au temps initial on récupère $B_t$ au temps $t$.
 
 \paragraph{Cas stochastique}
 
@@ -99,19 +99,19 @@ de \emph{taux instantané} (ou \emph{taux court}) $(r_t)_{t \ge 0}$ vérifiant l
 Cette fois, nous définissons l'équation différentielle stochatique suivante :
 \begin{equation}
     \begin{cases}
-        N_0 = 1 \\
-        dN_t = r_t N_t dt
+        B_0 = 1 \\
+        dB_t = r_t B_t dt
     \end{cases}
 \end{equation}
 Cette EDS est en réalité une équation différentielle aléatoire puisqu'elle
 ne comporte pas de terme de diffusion mais ses coefficients sont aléatoires. Nous cherchons
 ainsi à déterminer le champ mesurable 
 \begin{equation}
-    N : [0, T] \time \Omega \to \mathbb{R}
+    B : [0, T] \time \Omega \to \mathbb{R}
 \end{equation}
 vérifiant, pour tout $t \in [0, T]$,
 \begin{equation}
-    N_t(\omega) = 1 + \int_0^t r_s(\omega)B_s(\omega) ds, \quad \text{p.s.}
+    B_t(\omega) = 1 + \int_0^t r_s(\omega)B_s(\omega) ds, \quad \text{p.s.}
 \end{equation}
 Remarquons que pour $\omega \in \Omega$ fixé cette égalité est
 déterministe, l'intégrale est de Lebesgue classique.
@@ -124,7 +124,7 @@ générale mais mesurable donc le théorème de Carathéodory s'applique mais pa
 En séparant les variables et en résolvant pour tout $\omega \in \Omega$ vérifiant $\mathbf{(H2)}$
 nous obtenons la solution suivante :
 \begin{equation}
-    N_t = \exp\!\left(\int_0^t r_s \, ds\right), \quad \text{p.s.}
+    B_t = \exp\!\left(\int_0^t r_s \, ds\right), \quad \text{p.s.}
 \end{equation}
 
 
@@ -182,7 +182,7 @@ $\mathbb{P}^* \sim \mathbb{P}$ (appelée \emph{mesure équivalente martingale} o
 telle que les prix actualisés soient des \emph{martingales locales} sous
 $\mathbb{P}^*$ :
 \[
-\tilde S_t = \frac{S_t}{N_t}
+\tilde S_t = \frac{S_t}{B_t}
 \quad\text{est une }\mathbb{P}^*\text{-locale martingale}.
 \]
 Sous cette mesure, la dynamique de $S_t$ s'écrit :
@@ -202,19 +202,19 @@ Nous commençons donc par actualiser la valeur de $X$ en $T$ par le numéraire $
 risque conditionnellement à l'information disponible en $t$ c'est à dire $\mathcal{F}_t$. En normalisant par le
 numéraire à l'instant présent nous obtenons :
 \begin{equation}
-    \Pi_X(t,T) = N_t\, \mathbb{E}^{\mathbb{P}^*}\!\left[ \frac{X}{N_T} \,\middle|\, \mathcal{F}_t \right].
+    \Pi_X(t,T) = N_t\, \mathbb{E}^{\mathbb{P}^*}\!\left[ \frac{X}{B_T} \,\middle|\, \mathcal{F}_t \right].
 \end{equation}
 Cette formule suit directement de la propriété de martingale de $(\tilde S_t)$.
 
 A partir de cette formule il est possible de définir l'obligation zéro-coupon (i.e. à prix juste) sans risque,
-il s'agit d'un actif ayant une revendication de 1€ au temps $T$ dont la valeur est donnée par
+il s'agit d'un actif (une dette) ayant une revendication de 1€ au temps $T$ dont la valeur est donnée par
 \begin{equation}
-    B(t,T) = N_t\, \mathbb{E}^{\mathbb{P}^*}\!\left[ \frac{1}{N_T} \,\middle|\, \mathcal{F}_t \right]
+    D(t,T) = N_t\, \mathbb{E}^{\mathbb{P}^*}\!\left[ \frac{1}{B_T} \,\middle|\, \mathcal{F}_t \right]
 \end{equation}
 Il est alors possible de rentrer le terme $N_t$ dans l'espérance puisque celui-ci est constant conditionnellement
 à l'information $\mathcal{F}_t$ et en remplaçant par l'expression du numéraire nous obtenons :
 \begin{equation}
-    B(t,T) = \mathbb{E}^{\mathbb{P}^*}\!\left[ \exp\!\left(-\int_t^T r_s \, ds\right) \,\middle|\, \mathcal{F}_t \right]
+    D(t,T) = \mathbb{E}^{\mathbb{P}^*}\!\left[ \exp\!\left(-\int_t^T r_s \, ds\right) \,\middle|\, \mathcal{F}_t \right]
 \end{equation}
 Si le risque de contrepartie de l'émetteur du zéro-coupon n'est pas nul, l'évaluation du
 zéro-coupon doit tenir compte de la possibilité du défaut de celui-ci : deux nouveaux
@@ -224,12 +224,12 @@ risques entrent en jeu :
     \item la perte en cas de défaut (\emph{Loss Given Default}).
 \end{itemize}
 La perte en cas de défaut s'exprime comme un taux de recouvrement $R$ éventuellement aléatoire et d'une hypothèse de
-recouvrement. Nous notons $D(t,T)$ la valeur en $t$ d'un zéro-coupon risqué de maturité $T$ et $\tau$ l'instant de
+recouvrement. Nous notons $D_\tau(t,T)$ la valeur en $t$ d'un zéro-coupon risqué de maturité $T$ et $\tau$ l'instant de
 défaut de l'émetteur de ce titre. Il existe plusieurs hypothèses de recouvrement en théorie des mathématiques financières
 mais nous utiliserons la plus courante dite \emph{recovery of par value} et qui consiste en le recouvrement
 à l'instant de défaut d'une fraction $R$ du nominal du titre
 \begin{equation}
-    D(t,T) = \mathbb{E}^{\mathbb{P}^*}\!\left[ e^{- \int_t^T r_s \, ds} \mathbb{1}_{\{ \tau > T \}} + Re^{- \int_t^T r_s \, ds} \mathbb{1}_{\{ t < \tau < T \}}\,\middle|\, \mathcal{F}_t \right]
+    D_{\tau}(t,T) = \mathbb{E}^{\mathbb{P}^*}\!\left[ e^{- \int_t^T r_s \, ds} \mathbb{1}_{\{ \tau > T \}} + Re^{- \int_t^T r_s \, ds} \mathbb{1}_{\{ t < \tau < T \}}\,\middle|\, \mathcal{F}_t \right]
 \end{equation}
 Dans la suite du document nous chercherons à évaluer le prix des actifs à l'instant initial $t_0 = 0$, les prix
 seront donc donnés par des espérances conditionnellement à l'information initiale $\mathcal{F}_0$. Afin de simplifier
