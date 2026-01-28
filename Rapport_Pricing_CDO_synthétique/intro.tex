@@ -11,21 +11,23 @@ Dans ce contexte, une compréhension rigoureuse des mécanismes de valorisation 
 
 \subsection{Cadre probabiliste et hypothèses sur le taux instantané}
 
-\subsubsection{Espace probabilisé et filtration}
+\subsubsection{Espace probabilisé et filtration}\label{subsubsection:espace_prob_filtre}
 
-Nous nous plaçons dans un cadre continu en temps sur un horizon fini $[0,T]$, muni
-d'un espace probabilisé complet
-\[
-(\Omega,\mathcal{F},\mathbb{P},(\mathcal{F}_t)_{t\ge 0},),
-\]
-où la filtration $(\mathcal{F}_t)$ satisfait les conditions usuelles:
-
-\begin{itemize}
-    \item Continuité à droite : $\mathcal{F}_t = \bigcap_{s>t} \mathcal{F}_s$
-    \item Complétude : Soit $N$ un ensemble négligeable, alors $N \subset \mathcal{F}_0$
-\end{itemize}
-
-\noindent Tous les processus considérés sont supposés adaptés à $(\mathcal{F}_t)$ c'est à dire, pour tout processus $(X_t)_{t\ge0}$, pour tout $t\ge0$, la variable aléatoire $X_t$ est $\mathcal{F}_t$-mesurable.
+Nous nous plaçons dans un espace probabilisé filtré 
+$(\Omega, \mathcal{F}, \mathbb{P}, (\mathcal{F}_t)_{t \geq 0})$ muni d'une probabilité risque-neutre $\mathbb{P}^*$ 
+équivalente à $\mathbb{P}$. La filtration $\mathbb{F}:=(\mathcal{F}_t)_{t \geq 0}$ représente 
+l'information disponible sur les marchés financiers à l'instant $t$. Nous modélisons l'instant
+de défaut par une variable aléatoire $\tau$ positive définie sur $(\Omega, \mathcal{G}, \mathbb{P})$.
+Cette variable aléatoire n'a à priori aucune raison d'être un $\mathbb{F}$-temps d'arrêt.
+En effet, le défaut n'est pas toujours visible à l'instant même par l'information sur les marchés.
+Nous introduisons ainsi le processus stochastique $H_t := \mathbb{1}_{\{ \tau \le t \}}$ appelé processus
+de défaut qui vaut 1 si le défaut est déjà survenu et 0 sinon. Il est alors possible de générer la
+filtration engendrée par ce processus $\mathbb{H}:=(\mathcal{H}_t)_{t\ge0}$ où $\mathcal{H}_t = 
+\sigma(H_s : s \leq t) = \sigma(\{\tau \leq s\} : s \leq t)$ de sorte que chaque fonction
+$H_t$ soit $\mathcal{H}_t$-mesurable. Soit la filtration $\mathbb{G} := \mathbb{F} \vee \mathbb{H} $,
+c'est à dire pour tout $t \ge 0$, $\mathcal{G}_t = \sigma(\mathcal{F}_t \cup \mathcal{H}_t) $. D'un point
+de vue pratique nous venons d'enrichir les informations du marché du minimum d'informations nécessaires
+pour rendre le processus de défaut mesurable.\cite{defaut_intensite}
 
 \subsubsection{Intérêts composés, numéraire et taux instantanés}
 
@@ -129,7 +131,7 @@ nous obtenons la solution suivante :
 
 
 
-\subsubsection{Processus de prix des actifs risqués}
+\subsubsection{Hypothèse d'absence d'arbitrage et existence de la mesure risque-neutre}
 
 \begin{definition}[Martingale locale]
 Soit $(\Omega,\mathcal F,(\mathcal F_t)_{t \ge 0},\mathbb P)$ un espace probabilisé filtré satisfaisant les
@@ -149,19 +151,11 @@ est une martingale (intégrable) par rapport à $(\mathcal F_t)$.
 
 Soit $S=(S_t)_{t \ge 0}$ un actif risqué. Sous la probabilité historique $\mathbb{P}$, sa dynamique est
 supposée être une \emph{semi-martingale}, c'est-à-dire un processus pouvant être décomposé
-en une \emph{locale martingale} et un processus adapté càdlag à variations locales finies, typiquement
-un processus de diffusion :
-\begin{equation}
-    dS_t = S_t\big( b_t\,dt + \sigma_t\,dW_t \big),
-\end{equation}
-où $(b_t)$ est la dérive ou ''\textit{drift}'' (prime de risque incluse) et $(\sigma_t)$ la volatilité.
-
+en une \emph{locale martingale} et un processus adapté càdlag à variations locales finies.
 \noindent On note les prix actualisés par le numéraire :
 \begin{equation}
     \tilde S_t := \frac{S_t}{B_t}.
 \end{equation}
-
-\subsubsection{Hypothèse d'absence d'arbitrage et existence de la mesure risque-neutre}
 
 \begin{definition}[Mesures équivalentes]
     Soient $\mu$ et $\nu$ deux mesures sur l'espace mesurable $(X,\mathcal{F})$ et notons
@@ -179,17 +173,21 @@ mathématiquement et ne nous apporte rien d'intéressant, en revanche c'est cell
 de la mesure équivalente risque-neutre. Nous pouvons l'interpréter comme une absence de stratégie ayant un gain
 sans risque réel ou investissement initial.} (NFLVR) est équivalente à l'existence d'une probabilité
 $\mathbb{P}^* \sim \mathbb{P}$ (appelée \emph{mesure équivalente martingale} ou \emph{mesure risque-neutre})
-telle que les prix actualisés soient des \emph{martingales locales} sous
-$\mathbb{P}^*$ :
-\[
-\tilde S_t = \frac{S_t}{B_t}
-\quad\text{est une }\mathbb{P}^*\text{-locale martingale}.
-\]
-Sous cette mesure, la dynamique de $S_t$ s'écrit :
+telle que les prix actualisés $\tilde S_t = \frac{S_t}{B_t}$ soient des \emph{martingales locales} sous
+$\mathbb{P}^*$.
+
+
+Nous pouvons à présent remarquer que le processus de défaut $H$ abordé section \ref{subsubsection:espace_prob_filtre}
+est une $\mathbb{G}$-sous-martingale, pour cela nous écrivons que pour tout $t \le s$ :
 \begin{equation}
-    dS_t = S_t\big( r_t\,dt + \sigma_t\,dW_t^* \big),
+    \mathbb{1}_{ \{ \tau \le s \} } = \mathbb{1}_{ \{ \tau \le t \} } + \mathbb{1}_{ \{ t < \tau \le s \} }
 \end{equation}
-où $(W_t^*)$ est un processus de Wiener sous $\mathbb{P}^*$.
+En prenant l'espérence conditionnelle et en utilisant la $\mathbb{G}$-mesurabilité de $H$ :
+\begin{equation}
+    \mathbb{E}^{\mathbb{P}^*} [H_s \mid \mathcal{G}_t] =
+    H_t + \mathbb{E}^{\mathbb{P}^*} [\mathbb{1}_{ \{ t < \tau \le s \} } \mid \mathcal{G}_t] \ge H_t
+\end{equation}
+Nous avons ainsi montré la propriété de sous-martingalité.
 
 \subsection{Le modèle de crédit}
 
@@ -227,12 +225,8 @@ La perte en cas de défaut s'exprime comme un taux de recouvrement $R$ éventuel
 recouvrement. Nous notons $D_\tau(t,T)$ la valeur en $t$ d'un zéro-coupon risqué de maturité $T$ et $\tau$ l'instant de
 défaut de l'émetteur de ce titre. Il existe plusieurs hypothèses de recouvrement en théorie des mathématiques financières
 mais nous utiliserons la plus courante dite \emph{recovery of par value} et qui consiste en le recouvrement
-à l'instant de défaut d'une fraction $R$ du nominal du titre
+à l'instant de défaut d'une fraction $R$ du nominal du titre. Ainsi la valeur est donnée par
 \begin{equation}
     D_{\tau}(t,T) = \mathbb{E}^{\mathbb{P}^*}\!\left[ e^{- \int_t^T r_s \, ds} \mathbb{1}_{\{ \tau > T \}} + Re^{- \int_t^T r_s \, ds} \mathbb{1}_{\{ t < \tau < T \}}\,\middle|\, \mathcal{F}_t \right]
 \end{equation}
-Dans la suite du document nous chercherons à évaluer le prix des actifs à l'instant initial $t_0 = 0$, les prix
-seront donc donnés par des espérances conditionnellement à l'information initiale $\mathcal{F}_0$. Afin de simplifier
-les notations nous omettrons le conditionnement trivial et utiliserons simplement l'espérance.
-
 

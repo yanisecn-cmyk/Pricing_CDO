@@ -1,5 +1,70 @@
 \section{Modélisation du risque de défaut}
 
+\subsection{Les modèles à intensité}
+
+L'intuition générale des modèles à intensité est basée sur la décomposition de Doob-Meyer
+qui assure l'existence d'une décomposition unique du processus de défaut $H$ défini section
+\ref{subsubsection:espace_prob_filtre} de la forme $H_t = M_t + A_t$ où $M_t$ est une
+$\mathbb{G}$-martingale et $A_t$ est un processus $\mathbb{G}$-prévisible croissant. Cette propriété
+est à l'origine de l'hypothèse selon laquelle il existe un unique processus
+$(\lambda_t)_{t \ge 0}$ $\mathbb{F}$-adapté appelé intensité de défaut tel que le processus
+$M_t$ défini comme
+\begin{equation}
+    M_t := H_t - \int_0^t \mathbb{1}_{ \{ u \le \tau \} } \lambda_u \, du
+\end{equation}
+soit une $\mathbb{G}$-martingale.\cite{defaut_intensite}
+
+A présent prenons $0 \le t \le T$, par la propriété de martingale en prenant l'espérance
+conditionnelle $ \mathbb{E}[M_T - M_t \mid \mathcal{G}_t] = 0 $, donc
+\begin{equation}
+    \mathbb{E}[H_T - H_t \mid \mathcal{G}_t] = \mathbb{E}\left[ \int_t^T \mathbb{1}_{ \{ u \le \tau \} } \lambda_u \, du \, \middle| \, \mathcal{G}_t \right]
+\end{equation}
+Or $ H_T - H_t = \mathbb{1}_{ \{ t < \tau \le T \} } $ donc
+\begin{equation}
+    \mathbb{E}[H_T - H_t \mid \mathcal{G}_t] = \mathbb{P}( t < \tau \le T \mid \mathcal{G}_t)
+\end{equation}
+Et par positivité de l'intégrande et par hypothèse que $\lambda$ est $\mathbb{F}$-adapté, en utilisant le théorème de Fubini
+\begin{equation}
+    \mathbb{E}\left[ \int_t^T \mathbb{1}_{ \{ u < \tau \} } \lambda_u \, du \, \middle| \, \mathcal{G}_t \right]
+    = \int_t^T \lambda_u \mathbb{E}\left[ \mathbb{1}_{ \{ u < \tau \} } \, \middle| \, \mathcal{G}_t  \right]  du 
+\end{equation}
+Or pour $u \ge t $, nous avons $ \mathbb{1}_{ \{ u < \tau \} } = \mathbb{1}_{ \{ \tau > t \} }\mathbb{1}_{ \{ \tau > u \} }$ et comme
+$ \{ \tau > t \} \in \mathcal{G}_t$ :
+\begin{equation}
+    \mathbb{E}\left[ \mathbb{1}_{ \{ u < \tau \} } \, \middle| \, \mathcal{G}_t  \right] = \mathbb{1}_{ \{ \tau > t \} } \mathbb{P}( \tau > u \mid \mathcal{F}_t)
+\end{equation}  
+Nous obtenons l'égalité
+\begin{equation}
+    \mathbb{P}( t < \tau \le T \mid \mathcal{G}_t)
+    = \mathbb{1}_{ \{ \tau > t \} } \int_t^T \lambda_u \mathbb{P}( \tau > u \mid \mathcal{F}_t)  du 
+\end{equation}
+Or en remarquant qu'aucune information lié à $\{ \tau > T \}$ n'est dans $\mathcal{H}_t = \sigma(\{\tau \leq s\} : s \leq t)$ nous pouvons établir un dernier résultat : 
+\begin{align*}
+    \mathbb{P}( t < \tau \le T \mid \mathcal{G}_t) & = \mathbb{E}[ \mathbb{1}_{\{t < \tau \le T\}} \mid \mathcal{G}_t ] \\
+    & = \mathbb{E}[ \mathbb{1}_{\{t < \tau \}} \mathbb{1}_{\{ \tau \le T\}} \mid \mathcal{G}_t ] \\
+    & = \mathbb{1}_{\{t < \tau \}} \mathbb{E}[\mathbb{1}_{\{ \tau \le T\}} \mid \mathcal{G}_t ] \\
+    & = \mathbb{1}_{\{t < \tau \}} (1 - \mathbb{E}[\mathbb{1}_{\{ \tau > T\}} \mid \mathcal{G}_t ]) \\
+    & = \mathbb{1}_{\{t < \tau \}} (1 - \mathbb{E}[\mathbb{1}_{\{ \tau > T\}} \mid \mathcal{F}_t ]) \\
+    & = \mathbb{1}_{\{t < \tau \}} (1 - \mathbb{P}( \tau > T \mid \mathcal{F}_t ))
+\end{align*}
+Finalement en posant $f(t, u) = \mathbb{P}(\tau > u \mid \mathcal{F}_t)$, nous obtenons l'équation
+\begin{equation}
+    1 - f(t,T) = \int_t^T \lambda_u \, f(t,u) \, du 
+\end{equation}
+Pouvant être dérivée pour obtenir le problème de Cauchy
+\begin{equation}
+    \begin{cases}
+        \partial_u f(t,u) = - \lambda_u f(t,u) \\
+        f(t,t) = 1
+    \end{cases}
+\end{equation}
+Et la solution de ce problème est donnée par :
+\begin{equation}\label{eq:poisson_jump}
+    \mathbb{P}(\tau > T \mid \mathcal{F}_t) = \exp\left(- \int_t^T \lambda_u \, du \right), \quad \text{p.s.}
+\end{equation}
+Nous reconnaissons la probabilité qu'il n'y ait aucun saut pendant un intervalle de temps $T-t$ sur le
+processus de Poisson non homogène $H$ d'intensité stochastique $\lambda$.
+
 \subsection{Modélisation du risque d'un CDS}
 
 La détermination du prix d'un Credit Default Swap repose sur la modélisation 
@@ -7,36 +72,16 @@ probabiliste du temps de défaut de l'entité de référence. L'objectif de cett
 est d'établir le cadre théorique permettant de dériver la loi de probabilité du temps 
 de défaut, afin de calculer le spread équitable du contrat.
 
-Nous nous plaçons dans un espace probabilisé doublement filtré 
-$(\Omega, \mathcal{F}, \mathbb{P}, (\mathcal{F}_t)_{t \geq 0}, 
-(\mathcal{G}_t)_{t \geq 0})$ muni d'une probabilité risque-neutre $\mathbb{P}^*$ 
-équivalente à $\mathbb{P}$. La filtration $(\mathcal{F}_t)_{t \geq 0}$ représente 
-l'information disponible sur les marchés financiers à l'instant $t$, tandis que la 
-filtration $(\mathcal{G}_t)_{t \geq 0}$ est la filtration augmentée qui incorpore 
-l'information relative au défaut. Plus précisément, nous définissons $\mathcal{G}_t 
-= \mathcal{F}_t \vee \sigma(\{\tau \leq s\} : s \leq t)$, où $\tau$ désigne le temps 
-de défaut, variable aléatoire positive représentant l'instant du défaut de crédit.
-
 Considérons un CDS de maturité $T$ portant sur un notionnel $N$, avec un taux de 
 recouvrement $R$ et un spread $s$. Le principe d'absence d'opportunité d'arbitrage 
 impose l'égalité entre la valeur actualisée de la jambe premium \eqref{premium_leg} 
 et celle de la jambe protection \eqref{protection_leg}, permettant de déterminer le 
-spread de marché équitable.
-
-Pour modéliser le temps de défaut, nous adoptons une approche par intensité. Nous 
-supposons que $\tau$ admet une intensité de défaut $\lambda(t)$, processus stochastique 
-adapté à $(\mathcal{F}_t)_{t \geq 0}$. Le temps de défaut suit un processus de Poisson 
-non-homogène d'intensité $\lambda(t)$, avec probabilité de survie
+spread de marché équitable. Pour modéliser le temps de défaut, nous reprenons le résultat (\ref{eq:poisson_jump})
+et prenons l'espérance risque-neutre sur $\mathcal{F}_t$ il est possible d'écrire :
 \begin{equation}
 \mathbb{P}^*(\tau > t) = \mathbb{E}^{\mathbb{P}^\ast}
-\!\left[ \exp\left(-\int_0^t \lambda(s) \, ds\right) \right],
+\!\left[ \exp\left(-\int_0^t \lambda(s) \, ds\right) \right].
 \end{equation}
-et densité de probabilité
-\begin{equation}
-f_\tau(t) = \mathbb{E}^{\mathbb{P}^\ast}
-\!\left[ \lambda(t) \exp\left(- \lambda(t) \, dt \right)\right].
-\end{equation}
-
 Lorsque l'intensité est déterministe, $\lambda(t) : \mathbb{R}_+ \to \mathbb{R}_+$, 
 la probabilité de survie devient
 \begin{equation}
@@ -167,16 +212,3 @@ La corrélation entre défauts émerge naturellement via le facteur commun
 $\lambda^{\text{syst}}(t)$ : lorsque le risque systémique s'élève, toutes les 
 intensités augmentent simultanément, générant une dépendance dynamique et capturant la 
 dépendance de queue observée empiriquement.
-
-Pour l'évaluation numérique, une propriété clé simplifie considérablement les calculs : conditionnellement à la trajectoire du facteur systémique $\{\lambda^{\text{syst}}(s), 0 \leq s \leq T\}$, les temps de défaut des différentes entités sont indépendants. En effet, étant donné $\lambda^{\text{syst}}(t)$, chaque intensité $\lambda_i(t)$ devient un processus déterministe (à la composante idiosyncratique près, qui est indépendante entre entités), et les défauts suivent des processus de Poisson indépendants. Cette observation permet de décomposer la simulation en deux étapes : 
-\begin{enumerate}
-\item Simuler une trajectoire du facteur systémique $\lambda^{\text{syst}}(t)$ par 
-discrétisation d'Euler de l'équation de diffusion avec sauts.
-\item Conditionnellement à cette trajectoire, générer les temps de défaut de manière 
-indépendante pour chaque entité via des processus de Poisson non-homogènes d'intensité
-$\lambda_i(t) = \lambda_i^{\text{idio}}(t) + \beta_i \cdot \lambda^{\text{syst}}(t)$.
-\end{enumerate}
-Cette approche par conditionnement offre un gain computationnel substantiel comparé à 
-une simulation Monte Carlo directe de la distribution jointe, car elle réduit le 
-problème de dimension $n$ (nombre d'entités) à un problème de dimension 1 (le facteur 
-systémique) suivi de $n$ simulations indépendantes.
