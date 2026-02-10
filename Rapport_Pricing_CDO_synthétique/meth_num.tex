@@ -2,7 +2,16 @@
 
 \subsection{Simulation des taux d'intérêts}
 
-La simulation des trajectoires du taux instantané $r_t$ est une étape essentielle pour la valorisation des produits financiers et l’étude des dynamiques du numéraire. Nous présentons ci-dessous les méthodes de simulation pour les modèles de Vasicek et de CIR.
+\paragraph{Principe général de la simulation et différence entre les modèles.}
+
+\vspace{0.5cm}
+
+Dans les deux cas, les formules utilisées pour simuler $r_{t+\Delta t}$ correspondent à l’échantillonnage de la loi de transition exacte du taux court, et non à un schéma de discrétisation de type Euler.
+
+Dans le modèle de Vasicek, l’équation étant linéaire, le processus est gaussien et la loi conditionnelle de $r_{t+\Delta t}$ sachant $r_t$ est normale, ce qui conduit à une formule de simulation explicite.  
+Dans le modèle CIR, le coefficient de diffusion dépend de $\sqrt{r_t}$, l’équation n’est plus linéaire et la loi conditionnelle de transition est une loi du $\chi^2$ non centrale.
+
+La différence entre les expressions de simulation provient donc directement de la structure des équations différentielles stochastiques des deux modèles.
 
 \subsubsection{Simulation du modèle de Vasicek}
 
@@ -21,6 +30,39 @@ où $Z_t \sim \mathcal{N}(0,1)$ est une variable aléatoire normale standard ind
     \item Générer des variables normales $Z_0, Z_1, \dots$.
     \item Calculer itérativement $r_{t+\Delta t}$ à partir de $r_t$ en utilisant la formule ci-dessus.
 \end{enumerate}
+
+
+\medskip
+\paragraph{Calcul du numéraire dans le modèle de Vasicek}
+
+On rappelle que le numéraire associé au marché monétaire est défini par
+\begin{equation}
+    B_t=\exp\left(\int_0^t r_s\,ds\right).
+\end{equation}
+
+Dans le cadre du modèle de Vasicek, le processus $(r_t)_{t\geq 0}$ est un processus gaussien à trajectoires continues et vérifie la propriété d’intégrabilité
+\[
+\int_0^T |r_s|\,ds<\infty \quad \text{p.s.}
+\]
+comme établi dans la section précédente.
+
+Par conséquent, pour toute trajectoire simulée $(r_{t_k})_{k=0,\ldots,N}$, une approximation naturelle du numéraire s’obtient par une discrétisation de l’intégrale :
+\begin{equation}
+    B_{t_{k+1}}
+    =
+    B_{t_k}\exp\!\left(r_{t_k}\Delta t\right),
+    \qquad B_0=1,
+\end{equation}
+où $\Delta t=t_{k+1}-t_k$.
+
+Cette formule découle directement de la définition intégrale de $B_t$ et du fait que, pour des trajectoires continues, la somme de Riemann
+\[
+\sum_{k=0}^{N-1} r_{t_k}\Delta t
+\]
+converge presque sûrement vers $\int_0^T r_s\,ds$ lorsque $\Delta t\to 0$.
+
+Ainsi, la simulation exacte du taux court $r_t$ dans le modèle de Vasicek permet de calculer de manière cohérente le numéraire par simple intégration numérique le long des trajectoires simulées.
+
 
 
 \subsubsection{Simulation du modèle CIR}
@@ -43,6 +85,37 @@ Le modèle CIR ne possède pas de solution intégrale simple, mais il est possib
     \item La simulation des trajectoires du modèle de Vasicek est simple et rapide grâce à la solution analytique.
     \item Le modèle CIR garantit la positivité du taux, mais nécessite la génération de variables $\chi^2$ non centrales.
 \end{itemize}
+
+\medskip
+\paragraph{Calcul du numéraire dans le modèle CIR}
+
+Dans le modèle de Cox--Ingersoll--Ross, le numéraire est également défini par
+\begin{equation}
+    B_t=\exp\left(\int_0^t r_s\,ds\right).
+\end{equation}
+
+Sous les hypothèses du modèle, et en particulier sous la condition de Feller $2ab\geq \sigma^2$, le processus $r_t$ est strictement positif et à trajectoires continues.
+
+On a donc, pour tout horizon fini $T$,
+\[
+\int_0^T r_s\,ds<\infty \quad \text{p.s.}
+\]
+ce qui garantit que le numéraire est bien défini et strictement positif.
+
+Comme dans le cas de Vasicek, le calcul du numéraire repose sur une approximation de l’intégrale par une discrétisation temporelle. Pour une grille régulière $(t_k)$, on pose
+\begin{equation}
+    B_{t_{k+1}}
+    =
+    B_{t_k}\exp\!\left(r_{t_k}\Delta t\right),
+    \qquad B_0=1.
+\end{equation}
+
+Cette approximation est justifiée par la continuité presque sûre de $r_t$, qui assure la convergence de la somme de Riemann vers l’intégrale stochastique déterministe
+\[
+\int_0^t r_s\,ds.
+\]
+
+Le fait que la simulation du processus CIR soit effectuée à l’aide de sa loi exacte à chaque pas de temps ne modifie pas ce calcul : l’intégrale du taux court ne possède pas de loi fermée simple et doit être évaluée numériquement le long des trajectoires simulées.
 
 
 
