@@ -3,8 +3,47 @@
 \subsection{Simulation des taux d'intérêts}
 
 
-\subsection{Approche à copule}
+\subsection{Calibration des copules}
+
+Nous cherchons à calibrer une copule gaussienne à partir des spreads
+de CDS observés sur les 10 dates fournies. Pour cela nous allons 
+chercher à minimiser la norme euclidienne entre les spreads observés et les 
+spreads calculés à partir de la copule gaussienne. Nous allons utiliser
+la fonction d'optimisation de Scipy \texttt{scipy.optimize.minimize} pour 
+trouver les paramètres de la copule gaussienne qui minimisent cette norme.
+
+Afin de simplifier le problème d'optimisation, dans une première étape nous
+allons supposer que les corrélations entre les différents CDS sont toutes 
+égales, c'est à dire que la matrice de corrélation est de la forme
+\begin{equation}
+\Sigma = \begin{pmatrix}1 & \rho & \rho & \dots & \rho \\
+\rho & 1 & \rho & \dots & \rho \\
+\rho & \rho & 1 & \dots & \rho \\
+\vdots & \vdots & \vdots & \ddots & \vdots \\
+\rho & \rho & \rho & \dots & 1 \\
+\end{pmatrix}
+\end{equation}
+où $\rho$ est le paramètre de corrélation implicite que nous allons calibrer. Nous
+sommes donc dans le cas de l'approximation d'un portfolio homogène.
+
+Pour le trouver nous procédons en deux temps, premièrement nous utilisons une
+grille de paramètres sur laquelle nous calculons les spreads pour chaque tranche
+par une méthode de Monte-Carlo en échantillonnant des temps de défauts du vecteur
+aléatoire $(\tau_1, \dots, \tau_n)$. Puis sur une région plus restreinte nous
+utilisons l'algorithme de Broyden-Fletcher-Goldfarb-Shanno (BFGS) pour trouver
+le minimum de la norme euclidienne entre les spreads observés et les spreads calculés 
+à partir de la copule gaussienne. Il s'agit d'une méthode approchée de la méthode
+de Newton dite de "quasi-Newton".
+
+Dans une recherche ultérieure nous pourrons appliquer ces méthodes à des problèmes
+d'optimisation en plus grande dimension en essayant de calibrer une matrice de corrélation
+non homogène ou bien d'autres types de copules comme celle de Student ou bien d'autres
+mixtures.
 
 
 
-\subsection{Approche à intensité}
+
+
+
+
+

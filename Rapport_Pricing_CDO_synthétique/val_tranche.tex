@@ -57,25 +57,9 @@ de perte normalisé, nous avons
 \begin{equation}
 \text{EL}_{\text{tranche}} = N_{\text{tot}} \int_{K_1}^{K_2} \mathbb{P}^*(\ell(T) > x) \, dx.
 \end{equation}
-
-Cette formule illustre que la perte espérée d'une tranche correspond à l'intégrale de la probabilité
-de défaut excédant chaque niveau de perte dans l'intervalle $[K_1, K_2]$.
-
 La distribution $F_L(x,t)$ n'admet généralement pas de forme analytique, sauf dans des cas très particuliers.
 Le calcul numérique de cette distribution et de l'expected loss repose sur les méthodes de simulation 
-de Monte Carlo. L'algorithme procède comme suit :
-\begin{enumerate}
-\item Générer $M$ scénarios de la distribution jointe des temps de défaut $\{(\tau_1^{(m)}, \ldots, \tau_n^{(m)})\}_{m=1}^M$
-en utilisant soit la simulation par copule, soit la simulation du modèle à intensité stochastique avec conditionnement sur le 
-facteur systémique.
-\item Pour chaque scénario $m$, calculer la perte cumulée du portefeuille à l'instant $t$ :
-$$L^{(m)}(t) = N(1-R) \sum_{i=1}^n \mathbb{1}_{\{\tau_i^{(m)} \leq t\}}.$$
-\item En déduire la perte de la tranche pour ce scénario :
-$$L_{\text{tranche}}^{(m)}(t) = \min\left(\max(L^{(m)}(t) - K_1 N_{\text{tot}}, 0), (K_2 - K_1) N_{\text{tot}}\right).$$
-\item Estimer la perte espérée par moyenne empirique :
-$$\text{EL}_{\text{tranche}}(t) \approx \frac{1}{M} \sum_{m=1}^M L_{\text{tranche}}^{(m)}(t).$$
-\end{enumerate}
-Le nombre de simulations $M$ doit être suffisamment élevé pour garantir la convergence de l'estimateur Monte Carlo.
+de Monte Carlo.
 
 \subsection{Valorisation des tranches et calcul du spread}
 
@@ -98,7 +82,6 @@ restant à l'instant $t_i$ est
 \begin{equation}
 N_{\text{restant}}(t_i) = (K_2 - K_1) N_{\text{tot}} - L_{\text{tranche}}(t_i).
 \end{equation}
-
 La valeur actualisée de la jambe premium s'écrit
 \begin{equation}
 \text{JF}(s) = s \sum_{i=1}^m \delta_i    \mathbb{E}^{\mathbb{P}^\ast} \left[ \frac{N_{\text{restant}}(t_i)}{B_{t_i}} \right],

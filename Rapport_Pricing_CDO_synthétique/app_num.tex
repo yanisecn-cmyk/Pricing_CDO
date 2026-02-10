@@ -1,1 +1,76 @@
 \section{Application numérique}
+
+\subsection{Tarification de tranches}
+
+\subsubsection{Jeu de données}\label{subsubsec:data}
+
+Pour notre étude nous étudierons $Q = 4$ tranches du CDO synthétique
+CDX NA IG Series 19, il possède quatre différentes maturités (3, 5, 7
+and 10 ans) et est basé sur un portefeuille de $n = 125$ contrats CDS.
+Nous utiliserons les données fournies Table (\ref{tab:OkhrinXu}) par Okhrin et Xu (2017) pour la
+maturité $T = 5$ ans sur 10 dates fournies entre 01/06/2014 et le 
+15/03/2015.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lccccc}
+\toprule
+Date & 0--3\% & 3--7\% & 7--15\% & 15--100\% & CDS \\
+\midrule
+2014/06/01 & 4.250 & 2.000 & 0.036 & 0.014 & 39 \\
+2014/07/03 & 3.750 & 1.375 & 0.048 & 0.015 & 37 \\
+2014/08/15 & 4.094 & 1.719 & 0.050 & 0.014 & 38 \\
+2014/09/23 & 3.750 & 1.375 & 0.056 & 0.012 & 37 \\
+2014/10/11 & 5.775 & 1.810 & 0.050 & 0.012 & 41 \\
+2014/11/17 & 4.188 & 0.985 & 0.057 & 0.015 & 35 \\
+2014/12/01 & 3.183 & 0.747 & 0.060 & 0.016 & 32 \\
+2015/01/07 & 7.065 & 0.875 & 0.055 & 0.013 & 39 \\
+2015/02/10 & 7.559 & 0.563 & 0.055 & 0.014 & 37 \\
+2015/03/15 & 6.874 & 0.073 & 0.064 & 0.015 & 34 \\
+\bottomrule
+\end{tabular}
+\caption{Spreads de 4 tranches du CDX NA IG Series 19 et les spreads des CDS associés}
+\label{tab:OkhrinXu}
+\end{table}
+
+Le taux d'intérêt est pris constant à $r = 0.0014$ en accord avec la moyenne du LIBOR sur les
+dates considérées et le taux de recouvrement est fixé à $R = 0.4$ en accord avec
+la politique de l'entreprise Markit qui administre l'indice de ces produits. \cite{OhkrinXu}
+Les taux de recouvrement moyens observés pour les obligations corporate senior unsecured sur 
+longue période sont autour de 35--40 \%, selon les données historiques de Moody's Investors Service. Ces statistiques justifient l'usage conventionnel
+d'un taux de recouvrement de 40 \% dans la calibration des modèles de CDS. \cite{Tresor}
+
+\subsubsection{Copule gaussienne}
+
+Dans cette partie nous allons exposer les premiers résultats obtenus pour un modèle simple de
+copule gaussienne sous hypothèse d'un portefeuille homogène.
+
+Les résultats de calibrations sur les données présentées en section (\ref{subsubsec:data}) sont
+présentés Figure (\ref{fig:calibration_copule_gaussienne}) et montrent un résultat connu de la
+littérature : le modèle gaussien présente des queues de distributions indépendantes et n'arrive
+donc pas à simuler des évènement rares de défauts corrélés, les tranches equity sont bien approximées
+mais les autres tranches sont surévaluées par rapport aux spreads observés.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=1\textwidth]{images/spread_gaussian_1fact.png}
+\caption{Comparaison pour chaque tranche des spreads observés et calculés par copule gaussienne à un facteur}
+\label{fig:calibration_copule_gaussienne}
+\end{figure}
+
+Nous pouvons voir Figure (\ref{fig:corr_copule_gaussienne}) que la corrélation implicite du modèle gaussien
+est très élevée oscillant autour de 0,7 pour les différentes dates.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{images/spread_ev_gaussian_1fact.png}
+\caption{Evolution du coefficient de corrélation implicite pour la copule gaussienne à un facteur}
+\label{fig:corr_copule_gaussienne}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{images/smile_gaussian_1fact.png}
+\caption{Correlation implicite par tranche pour la copule gaussienne à un facteur}
+\label{fig:smile_gaussian_1fact}
+\end{figure}

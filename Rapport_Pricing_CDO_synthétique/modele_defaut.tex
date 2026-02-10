@@ -12,7 +12,7 @@ $M_t$ défini comme
 \begin{equation}
     M_t := H_t - \int_0^t \mathbb{1}_{ \{ u \le \tau \} } \lambda_u \, du
 \end{equation}
-soit une $\mathbb{G}$-martingale.\cite{defaut_intensite}
+soit une $\mathbb{G}$-martingale. \cite{defaut_intensite}
 
 A présent prenons $0 \le t \le T$, par la propriété de martingale en prenant l'espérance
 conditionnelle $ \mathbb{E}[M_T - M_t \mid \mathcal{G}_t] = 0 $, donc
@@ -73,10 +73,9 @@ est d'établir le cadre théorique permettant de dériver la loi de probabilité
 de défaut, afin de calculer le spread équitable du contrat.
 
 Considérons un CDS de maturité $T$ portant sur un notionnel $N$, avec un taux de 
-recouvrement $R$ et un spread $s$. Le principe d'absence d'opportunité d'arbitrage 
-impose l'égalité entre la valeur actualisée de la jambe premium \eqref{premium_leg} 
-et celle de la jambe protection \eqref{protection_leg}, permettant de déterminer le 
-spread de marché équitable. Pour modéliser le temps de défaut, nous reprenons le résultat (\ref{eq:poisson_jump})
+recouvrement $R$ et un spread $s$. Le spread de marché équitable est determiné grâce
+à l'égalité entre la valeur actualisée de la jambe premium \eqref{premium_leg} 
+et celle de la jambe protection \eqref{protection_leg}. Pour modéliser le temps de défaut, nous reprenons le résultat (\ref{eq:poisson_jump})
 et prenons l'espérance risque-neutre sur $\mathcal{F}_t$ il est possible d'écrire :
 \begin{equation}
 \mathbb{P}^*(\tau > t) = \mathbb{E}^{\mathbb{P}^\ast}
@@ -147,7 +146,14 @@ C_{\Sigma}^{\text{Gauss}}(u_1, \ldots, u_n)
 \end{equation}
 avec $\Phi_{\Sigma}$ la fonction de répartition de $\mathcal{N}(0, \Sigma)$. En pratique,
 on impose souvent une corrélation uniforme $\rho$ entre toutes les paires d'entités, 
-réduisant le nombre de paramètres à un seul.
+réduisant le nombre de paramètres à un seul. L'absence de formule analytique pour la distribution des pertes nécessite une 
+simulation Monte Carlo. L'algorithme génère un vecteur $\mathbf{Z} 
+= (Z_1, \ldots, Z_n) \sim \mathcal{N}(0, \Sigma)$, puis applique les transformations
+\begin{equation}
+U_i = \Phi_{\Sigma}(Z_i), \quad \tau_i = F_i^{-1}(U_i),
+\end{equation}
+pour obtenir des scénarios de défaut corrélés permettant d'estimer les prix par moyenne 
+empirique.
 
 \paragraph{La copule de Student.}
 
@@ -163,16 +169,10 @@ plus les queues sont épaisses, capturant ainsi une dépendance extrême plus fo
 les défauts. Lorsque $\nu \to \infty$, la copule de Student converge vers la copule 
 gaussienne. Cette propriété permet de mieux modéliser les défauts simultanés observés 
 lors des périodes de stress financier, où la copule gaussienne tend à sous-estimer les 
-événements de queue.
+événements de queue. La simulation numérique de la copule de Student est analogue à la
+méthode précédente.
 
-L'absence de formule analytique pour la distribution des pertes nécessite une 
-simulation Monte Carlo. L'algorithme génère un vecteur $\mathbf{Z} 
-= (Z_1, \ldots, Z_n) \sim \mathcal{N}(0, \Sigma)$, puis applique les transformations
-\begin{equation}
-U_i = \Phi(Z_i), \quad \tau_i = F_i^{-1}(U_i),
-\end{equation}
-pour obtenir des scénarios de défaut corrélés permettant d'estimer les prix par moyenne 
-empirique.
+
 
 \subsubsection{Modèles à intensité stochastique}
 
@@ -181,7 +181,7 @@ statique, absence de facteurs économiques explicites, et sous-estimation de la
 dépendance de queue. Une approche alternative décompose l'intensité de défaut de 
 chaque entité $i$ en
 \begin{equation}
-\lambda_i(t) = \lambda_i^{\text{idio}}(t) + \beta_i \cdot \lambda^{\text{syst}}(t),
+\lambda_i(t) = \lambda_i^{\text{idio}}(t) + \beta_i \lambda^{\text{syst}}(t),
 \end{equation}
 où $\lambda_i^{\text{idio}}(t)$ est la composante idiosyncratique, 
 $\lambda^{\text{syst}}(t)$ le facteur systémique commun, et $\beta_i \geq 0$ la 
@@ -190,7 +190,7 @@ sensibilité au risque systémique.
 Les intensités sont modélisées par des processus stochastiques. Pour capturer les chocs 
 macroéconomiques brutaux et les variations discontinues du risque de crédit, nous 
 utilisons un processus de diffusion avec sauts pour le facteur systémique :
-\begin{equation}
+\begin{equation}\label{eq:lambda_syst}
 d\lambda^{\text{syst}}(t) = \kappa(\theta - \lambda^{\text{syst}}(t)) \, dt + \sigma \sqrt{\lambda^{\text{syst}}(t)} \, dW(t) + dJ(t),
 \end{equation}
 où $\kappa > 0$ est la vitesse de retour à la moyenne, $\theta > 0$ le niveau de long 
@@ -199,13 +199,27 @@ de Poisson composé modélisant les sauts. Le processus de sauts s'écrit
 \begin{equation}
 J(t) = \sum_{i=1}^{P(t)} Y_i,
 \end{equation}
-où $P(t)$ est un processus de Poisson d'intensité $\lambda_J$ et les $Y_i$ sont des 
-variables aléatoires i.i.d. représentant l'amplitude des sauts (typiquement positives 
-pour modéliser des augmentations soudaines du risque systémique). Cette spécification 
+où $P(t)$ est un processus de Poisson d'intensité $\ell$ et les $Y_i \sim \text{Exp}\left(\frac{1}{\mu}\right)$ sont des 
+variables aléatoires i.i.d. représentant l'amplitude des sauts. Cette spécification 
 permet de capturer à la fois la dynamique continue du risque via la composante 
-diffusion et les événements de crise via les sauts.
+diffusion et les événements de crise via les sauts. On appelle un processus de cette
+forme (\ref{eq:lambda_syst}) un processus basique affine de paramètre $(\kappa, \theta, \sigma
+, \mu, \ell)$. \cite{DuffieGarleanu}
 
 La corrélation entre défauts émerge naturellement via le facteur commun 
 $\lambda^{\text{syst}}(t)$ : lorsque le risque systémique s'élève, toutes les 
 intensités augmentent simultanément, générant une dépendance dynamique et capturant la 
-dépendance de queue observée empiriquement.
+dépendance de queue observée empiriquement. Les coefficients présentés précédemment peuvent alors
+être ajustés afin d'approcher au mieux les observations empiriques. Des travaux ont été
+réalisés afin de trouver des valeurs convenables pour les coefficients
+$(\kappa, \theta, \sigma, \mu, \ell)$ ainsi que des incertitudes sur ceux-ci, des tables
+de valeurs peuvent être trouvées dans Duffie et Gârleanu (1999).
+
+La difficulté réelle de ces modèles réside dans la méconnaissance des intensités de défaut
+idiosyncratiques propres mais également des coefficients de sensibilité au risque systémique.
+Une première approximation par classe peut-être réalisée en regroupant les différents actifs
+et en leur attribuant des intensités et sensibilités par groupes (par notation de crédit par exemple). 
+Cependant ceci exige une analyse statistique historique fine de ces classes qui n'est pas toujours
+possible. De plus, l'appartenance a une classe n'est pas nécessairement définitive, en effet il existe 
+des modèles markoviens de transitions de classes permettant de prendre en compte des probabilités de
+changement d'état des différents sous-jacents du portefeuille.
