@@ -1,3 +1,4 @@
+% !TEX root = main.tex
 \section{Introduction}
 \subsection{Motivation}
 
@@ -128,6 +129,124 @@ nous obtenons la solution suivante :
     B_t = \exp\!\left(\int_0^t r_s \, ds\right), \quad \text{p.s.}
 \end{equation}
 
+
+\subsubsection{Hypothèses sur $r_t$}
+
+On rappelle que $r_t$ est généralement supposé être une diffusion de la forme :
+\begin{equation}
+    dr_t = \mu(t,r_t)\,dt + \sigma(t,r_t)\,dW_t,
+    \label{eq:diffusion_rt}
+\end{equation}
+
+Plusieurs modèles existent dans la littérature pour modéliser le taux instantané. Parmi les plus connus, on peut citer :
+\begin{itemize}
+    \item Le modèle de Vasicek : $\mu(t,r_t) = a(b - r_t)$ et $\sigma(t,r_t) = \sigma$, où $a$, $b$, et $\sigma$ sont des constantes positives. Ce modèle permet des taux négatifs.
+    \item Le modèle CIR (Cox-Ingersoll-Ross) : $\mu(t,r_t) = a(b - r_t)$ et $\sigma(t,r_t) = \sigma \sqrt{r_t}$, assurant que les taux restent positifs.
+\end{itemize}
+
+\paragraph{Modèle de Vasicek}
+
+Dans le modèle de Vasicek, le taux instantané $r_t$ suit la diffusion linéaire :
+
+\begin{equation}
+    dr_t = a (b - r_t) \, dt + \sigma \, dW_t,
+    \label{eq:vasicek}
+\end{equation}
+
+où :
+\begin{itemize}
+    \item $a > 0$ est la vitesse de retour à la moyenne (mean-reversion),
+    \item $b \in \mathbb{R}$ est le niveau moyen vers lequel le taux tend,
+    \item $\sigma > 0$ est la volatilité du taux,
+    \item $W_t$ est un Brownien standard.
+\end{itemize}
+
+\vspace{0.5cm}
+
+\textbf{Hypothèses sur $r_t$} :
+\begin{itemize}
+    \item \textbf{Adaptation et mesurabilité :} $r_t$ est $\mathcal{F}_t$-adapté et progressif.
+    \item \textbf{Lipschitz et croissance linéaire :} pour assurer l'existence et l'unicité de la solution :
+    \begin{equation}
+        |\mu(t,r) - \mu(t,r')| \le K |r - r'|, \quad |\mu(t,r)| + |\sigma| \le K(1 + |r|),
+        \label{eq:lipschitz_growth_vasicek}
+    \end{equation}
+    ce qui est satisfait avec $\mu(t,r) = a(b-r)$ et $\sigma$ constant.
+    \item \textbf{Intégrabilité :} 
+    \begin{equation}
+        \int_0^T |r_s| ds < \infty \quad \text{p.s.},
+    \end{equation}
+    garantissant que le numéraire
+    \begin{equation}
+        B_t = \exp\Big(\int_0^t r_s \, ds\Big)
+    \end{equation}
+    est bien défini et strictement positif.
+\end{itemize}
+
+\vspace{0.5cm}
+
+\textbf{Solution analytique} :
+
+\begin{equation}
+    r_t = r_0 e^{-a t} + b (1 - e^{-a t}) + \sigma \int_0^t e^{-a (t-s)} \, dW_s,
+\end{equation}
+
+avec
+\begin{equation}
+    \mathbb{E}[r_t] = r_0 e^{-a t} + b (1 - e^{-a t}), \quad
+    \mathrm{Var}(r_t) = \frac{\sigma^2}{2a}(1 - e^{-2 a t}).
+\end{equation}
+
+\vspace{0.5cm}
+
+\paragraph{Modèle CIR (Cox--Ingersoll--Ross)}
+
+Le modèle de Cox--Ingersoll--Ross (CIR) est défini par la dynamique suivante :
+\begin{equation}
+dr_t = a (b - r_t)\,dt + \sigma \sqrt{r_t}\,dW_t,
+\end{equation}
+où $a,b,\sigma>0$ et $r_0>0$.
+
+\textbf{Hypothèses et propriétés du processus $r_t$ :}
+\begin{itemize}
+    \item Le processus $(r_t)_{t\ge 0}$ est $\mathcal{F}_t$-adapté et à trajectoires continues.
+    \item Les coefficients $\mu(r)=a(b-r)$ et $\sigma(r)=\sigma\sqrt{r}$ ne sont pas globalement lipschitziens au voisinage de $0$. Toutefois, l’équation différentielle stochastique admet une solution forte unique non négative.
+    \item Sous la condition :
+    \begin{equation}
+        2ab \ge \sigma^2,
+    \end{equation}
+    la borne $0$ est inatteignable et l’on a $r_t>0$ presque sûrement pour tout $t>0$.
+    \item En particulier, les trajectoires étant continues et positives, on a pour tout horizon fini $T$ :
+    \begin{equation}
+        \int_0^T r_s\,ds < \infty \quad \text{p.s.},
+    \end{equation}
+    ce qui garantit que le numéraire
+    \[
+        B_t=\exp\left(\int_0^t r_s\,ds\right)
+    \]
+    est bien défini et strictement positif.
+\end{itemize}
+
+\medskip
+
+\textbf{Solution du processus et loi marginale.}
+
+Contrairement au modèle de Vasicek, il n’existe pas de représentation explicite du type intégrale stochastique fermée pour $r_t$.  
+Néanmoins, la loi marginale de $r_t$ est connue explicitement : $r_t$ suit une loi du $\chi^2$ non centrale (après renormalisation). Plus précisément, pour tout $t>0$, la distribution conditionnelle de $r_t$ sachant $r_0$ est une loi du $\chi^2$ non centrale.
+
+Cette propriété permet notamment une simulation exacte du processus, sans schéma d’Euler.
+
+\medskip
+
+\paragraph{Conclusion et ouverture vers d’autres modèles}
+
+\vspace{0.5cm}
+
+Les modèles de Vasicek et de CIR constituent deux cadres de référence pour la modélisation du taux court. Ils permettent tous les deux d’obtenir des formules semi-explicites pour les prix des obligations zéro-coupon.
+Cependant, ces modèles reposent sur des hypothèses structurelles relativement simples, ce qui peut limiter leur capacité à reproduire finement la structure par terme observée sur les marchés.
+
+Dans la littérature, on retrouve des modèles plus généraux, tels que le modèle de Hull--White, qui introduit des paramètres dépendant du temps, ou encore les modèles multifactoriels, comme le modèle G2++ permettant de mieux capturer la dynamique de la courbe des taux.
+Néanmoins, les modèles de Vasicek et de CIR conservent un intérêt majeur dans un cadre pédagogique car ils permettent de simuler efficacement les trajectoires du taux court.
 
 
 \subsubsection{Hypothèse d'absence d'arbitrage et existence de la mesure risque-neutre}

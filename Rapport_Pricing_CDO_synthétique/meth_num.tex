@@ -2,6 +2,50 @@
 
 \subsection{Simulation des taux d'intérêts}
 
+La simulation des trajectoires du taux instantané $r_t$ est une étape essentielle pour la valorisation des produits financiers et l’étude des dynamiques du numéraire. Nous présentons ci-dessous les méthodes de simulation pour les modèles de Vasicek et de CIR.
+
+\subsubsection{Simulation du modèle de Vasicek}
+
+Le modèle de Vasicek est linéaire et admet une solution explicite sous forme d'intégrale stochastique :
+
+\begin{equation}
+    r_{t+\Delta t} = r_t e^{-a \Delta t} + b (1 - e^{-a \Delta t}) + \sigma \sqrt{\frac{1 - e^{-2 a \Delta t}}{2a}} \, Z_t,
+\end{equation}
+
+où $Z_t \sim \mathcal{N}(0,1)$ est une variable aléatoire normale standard indépendante.
+
+\textbf{Méthode de simulation :}
+\begin{enumerate}
+    \item Choisir un pas de temps $\Delta t$ et un horizon final $T$.
+    \item Initialiser $r_0$.
+    \item Générer des variables normales $Z_0, Z_1, \dots$.
+    \item Calculer itérativement $r_{t+\Delta t}$ à partir de $r_t$ en utilisant la formule ci-dessus.
+\end{enumerate}
+
+
+\subsubsection{Simulation du modèle CIR}
+
+Le modèle CIR ne possède pas de solution intégrale simple, mais il est possible de simuler $r_t$ de manière exacte grâce à la relation avec la loi du $\chi^2$ non centrale.
+
+\textbf{Méthode de simulation :}
+\begin{enumerate}
+    \item Choisir un pas de temps $\Delta t$ et un horizon $T$.
+    \item Initialiser $r_0 > 0$.
+    \item À chaque pas, générer $r_{t+\Delta t}$ selon :
+    \[
+        r_{t+\Delta t} = \frac{\sigma^2 (1 - e^{-a \Delta t})}{4a} \, \chi^2_{\nu}(\lambda),
+    \]
+    où $\nu = \frac{4ab}{\sigma^2}$ et $\lambda = \frac{4 a r_t e^{-a \Delta t}}{\sigma^2 (1 - e^{-a \Delta t})}$.
+\end{enumerate}
+
+
+\begin{itemize}
+    \item La simulation des trajectoires du modèle de Vasicek est simple et rapide grâce à la solution analytique.
+    \item Le modèle CIR garantit la positivité du taux, mais nécessite la génération de variables $\chi^2$ non centrales.
+\end{itemize}
+
+
+
 
 \subsection{Calibration des copules}
 
