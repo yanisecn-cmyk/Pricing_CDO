@@ -1,13 +1,11 @@
 \section{Application numérique}
 
-\subsection{Tarification de tranches}
-
-\subsubsection{Jeu de données}\label{subsubsec:data}
+\subsection{Jeu de données}\label{subsec:data}
 
 Pour notre étude nous étudierons $Q = 4$ tranches du CDO synthétique
 CDX NA IG Series 19, il possède quatre différentes maturités (3, 5, 7
 and 10 ans) et est basé sur un portefeuille de $n = 125$ contrats CDS.
-Nous utiliserons les données fournies Table (\ref{tab:OkhrinXu}) par Okhrin et Xu (2017) pour la
+Nous utiliserons les données fournies Table \ref{tab:OkhrinXu} par Okhrin et Xu (2017) pour la
 maturité $T = 5$ ans sur 10 dates fournies entre 01/06/2014 et le 
 15/03/2015.
 
@@ -40,117 +38,136 @@ Les taux de recouvrement moyens observés pour les obligations corporate senior 
 longue période sont autour de 35--40 \%, selon les données historiques de Moody's Investors Service. Ces statistiques justifient l'usage conventionnel
 d'un taux de recouvrement de 40 \% dans la calibration des modèles de CDS. \cite{Tresor}
 
-\subsubsection{Copule gaussienne}
 
-Dans cette partie nous allons exposer les premiers résultats obtenus pour un modèle simple de
-copule gaussienne sous hypothèse d'un portefeuille homogène.
+\subsection{Tarification de tranches par méthodes de copules}
 
-Les résultats de calibrations sur les données présentées en section (\ref{subsubsec:data}) sont
-présentés Figure (\ref{fig:calibration_copule_gaussienne}) et montrent un résultat connu de la
-littérature : le modèle gaussien présente des queues de distributions indépendantes et n'arrive
-donc pas à simuler correctement les évènements rares de défauts corrélés, les tranches equity sont bien approximées
-mais les autres tranches sont surévaluées par rapport aux spreads observés.
+\subsubsection{Spread calibrés sur tranches}
 
+Les résultats obtenus pour le pricing des tranches du CDO synthétique CDX NA IG Series 19 sont
+donnés par date pour chaque modèle dans la Figure \ref{fig:spread_calibrated}, on peut y lire l'évolution
+de ces spreads pour chaque modèle en fonction du temps et les comparer aux spreads observés sur le marché.
 \begin{figure}[H]
-\centering
-\includegraphics[width=1\textwidth]{images/spread_gaussian_1fact.png}
-\caption{Comparaison pour chaque tranche des spreads observés et calculés par copule gaussienne à un facteur}
-\label{fig:calibration_copule_gaussienne}
+    \centering
+    \includegraphics[width=1\textwidth]{images/spread_calibres.png}
+    \caption{Spread calibré pour les tranches du CDX NA IG Series 19}
+    \label{fig:spread_calibrated}
 \end{figure}
 
-Nous pouvons voir Figure (\ref{fig:corr_copule_gaussienne}) que la corrélation implicite du modèle gaussien
-est très élevée oscillant autour de 0,7 pour les différentes dates. Cette forte corrélation explique la 
-surévaluation des tranches mezzanine et senior, le modèle gaussien doit compenser l'absence de queues de distribution
- dépendantes par une forte corrélation pour simuler les défauts corrélés nécessaires à la tarification de ces tranches.
+Plusieurs observations peuvent être faites à partir de ces résultats. Tout d'abord nous observons
+pour la copule gaussienne une différence claire entre la métrique RMSE absolue (orange continue) et RMSE log (orange pointillés), en effet
+la copule calibrée via la métrique absolue priorise fortement la tranche equity et colle parfaitement aux spreads observés. Cependant l'écart
+d'ordre de grandeur entre les spreads de marché de la tranche equity et des tranches mezzanine et senior empêche le modèle de bien approximer
+les spreads sur ces dernières tranches. Comme nous pouvons l'observer Figure \ref{fig:implied_correlation} les spreads observés relativement bas de la tranche equity poussent
+le modèle à augmenter sa corrélation implicite afin de diminuer la perte espérée sur cette tranche et donc le spread du modèle. En contrepartie cette corrélation
+implicite très élevée augmente le risque de pertes élevées sur les tranches supérieures et donc leur spread qui est ainsi bien supérieur au marché.
+
+Une première contradiction est donc illustrée par cette calibration, si l'on souhaite approcher les données du marché des tranches inférieures et en
+particulier de la tranche equity nous devons choisir une corrélation forte pour diminuer le nombre de défauts espérés. Cependant par ce même choix nous
+provoquons des pertes simultanées importantes et les tranches senior supposées "sûres" par diversification ne le sont plus ! Ce phénomène intuitif est illustré
+Figure \ref{fig:LHP_corr} par l'évolution de la perte espérée pour chaque tranche en fonction de la corrélation dans le modèle LHP. Par cette analyse nous portons
+un premier regard sur le concept de "smile" de corrélation que nous aborderons dans la section \ref{subsubsec:smile}.
 
 \begin{figure}[H]
-\centering
-\includegraphics[width=0.8\textwidth]{images/spread_ev_gaussian_1fact.png}
-\caption{Evolution du coefficient de corrélation implicite pour la copule gaussienne à un facteur}
-\label{fig:corr_copule_gaussienne}
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/LHP_corr.png}
+    \caption{Evolution de la perte espérée par tranche en fonction de la corrélation sous modèle LHP}
+    \label{fig:LHP_corr}
 \end{figure}
 
-La Figure (\ref{fig:smile_gaussian_1fact}) montre que la corrélation implicite par tranche forme
-un "\emph{smile}" caractéristique des modèles à copule gaussienne, la tranche equity (0--3 \%) nécessite
-une corrélation implicite importante, la tranche senior également, tandis que les tranches mezzanine 
-(3--7 \% et 7--15 \%) nécessitent une corrélation implicite plus faible. Ce phénomène peut être expliqué
-de deux manières différentes : soit le modèle de copule implicite est bien plus complexe que le modèle gaussien
-ou bien le marché des tranches de CDO synthétiques est illiquide et les spreads observés ne sont pas fiables,
-ce qui expliquerait les difficultés de calibration du modèle gaussien.
+A l'inverse de la RMSE absolue, la métrique logarithmique accorde une importance égale à chaque tranche, ainsi la tranche equity ne biaise plus la
+calibration et les tranches supérieures sont bien mieux ajustées. Nous pouvons notamment remarquer que pour le même modèle gaussien la RMSE log donne un
+spread beaucoup plus proche de celui du marché sur les tranches supérieures, ce qui indique une corrélation implicite plus faible. En conséquence les
+pertes attendues sur la tranche equity sont plus grandes et le spread estimé est donc bien plus grand que celui observé.
 
 \begin{figure}[H]
-\centering
-\includegraphics[width=0.8\textwidth]{images/smile_gaussian_1fact.png}
-\caption{Correlation implicite par tranche pour la copule gaussienne à un facteur}
-\label{fig:smile_gaussian_1fact}
+    \centering
+    \includegraphics[width=1\textwidth]{images/correlation_plot.png}
+    \caption{Evolution des correlations implicites estimées par les différents modèles}
+    \label{fig:implied_correlation}
 \end{figure}
 
-\subsubsection{Copule de Student}
+L'évolution des corrélations implicites en fonction du temps pour chaque modèle donnée Figure \ref{fig:implied_correlation} nous indique une corrélation de l'ordre
+de 0,5-0,8 pour le modèle gaussien calibré par métrique absolue. Cette valeur montre l'influence forte de la tranche basse et est trop élevée pour être réaliste, nous
+pourrons nous questionner par ailleurs sur l'hypothèse du marché parfait dans le cadre des produits equity soumis à la spéculation et peu demandés par les investisseurs
+dû à leur risque élevé. Il est fortement probable que les pertes espérées réelles sur ces tranches basses soient plus élevées ou bien qu'à l'inverse le risque soit sous-estimé sur
+les tranches supérieures ce qui fut notamment le cas en 2008 lors de la crise des subprimes.
 
-Nous présentons ici les résultats obtenus avec une copule de Student à un facteur, calibrée sur les
-données décrites en section (\ref{subsubsec:data}). Par construction, la copule de Student introduit une
-dépendance de queue (via le paramètre \(\nu\)), ce qui vise à mieux représenter les épisodes de stress où
-des défauts peuvent survenir de manière plus simultanée que dans le cadre gaussien.
+La métrique logarithmique est donc retenue comme plus performante, cependant entre les différents modèles certains restent plus performants que d'autres notamment le
+modèle à corrélation stochastique (Vasicek dynamique) donnant une corrélation moyenne autour de 0,16 et BGL estimant une corrélation normale autour de 0,1 (avec un poids à 0,96) contre 0,97 en temps de crise
+--- tous deux approchent mieux les spreads observés sur toutes les tranches. Le modèle à copule t-gaussienne reste plus
+performant que la copule gaussienne classique mais reste limitée sur la tranche equity et $[0,07;0,15]$. Une comparaison des RMSE log optimales pour chaque modèle illustre ces
+résultats Figure \ref{fig:RMSElog}.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{images/RMSElog.png}
+    \caption{Comparaison des RMSE logarithmiques pour les différents modèles}
+    \label{fig:RMSElog}
+\end{figure}
 
-Les spreads de tranches obtenus après calibration sont présentés Figure (\ref{fig:calibration_copule_student}).
-On observe que la tranche equity (0--3\%) est correctement reproduite par le modèle, ce qui est cohérent
-avec le fait que cette tranche est principalement sensible aux premiers défauts. En revanche, le modèle
-reste trop éloigné des spreads observés sur les tranches mezzanine et senior : la tranche 3--7\% est
-surévaluée sur l’ensemble de la période, et l’écart est encore plus marqué pour la tranche 7--15\% dont
-les spreads de marché sont très faibles sur la période considérée, alors que le modèle reste à des niveaux
-élevés. La tranche 15--100\% est également surestimée, même si l’écart tend à se réduire en fin d’échantillon.
-Ces résultats suggèrent que, malgré l’ajout de dépendance de queue, l’hypothèse de portefeuille homogène à
-un facteur demeure trop restrictive pour ajuster simultanément l’ensemble des tranches.
+\subsubsection{Smile de corrélation}\label{subsubsec:smile}
+
+Nous avons vu dans l'analyse précédente que les spreads observés tendaient à contraindre les modèles à chercher une corrélation
+implicite haute pour les tranches inférieures et une corrélation plus basse pour les tranches senior. Ce phénomène est appelé le 
+\emph{"smile"} de corrélation (\emph{correlation smile} ou \emph{correlation skew} en anglais), il illustre l'impossibilité des
+modèles paramétriques à correspondre parfaitement aux observations du marché. Pour représenter ce phéno\-mène nous calibrons les
+paramètres de nos modèles indépendamment sur chaque tranche puis traçons la corrélation implicite obtenue par tranche en fonction
+des points d'attachement et de détachement des tranches, nous obtenons le résultat Figure \ref{fig:smile}.
 
 \begin{figure}[H]
-\centering
-\includegraphics[width=1\textwidth]{images/Spread_tranches Student.png}
-\caption{Comparaison pour chaque tranche des spreads observés et calculés par copule de Student à un facteur}
-\label{fig:calibration_copule_student}
+    \centering
+    \includegraphics[width=1\textwidth]{images/smile.png}
+    \caption{Corrélation implicite en fonction de la tranche}
+    \label{fig:smile}
 \end{figure}
 
-La Figure (\ref{fig:corr_copule_student}) montre l’évolution de la corrélation implicite calibrée pour la
-copule de Student. On constate que \(\rho\) prend des valeurs élevées sur une grande partie des dates
-(autour de \(0.7\) en début de période), avant de diminuer nettement sur les derniers points (autour de \(0.4\)).
-Comme dans le cas gaussien, cette corrélation élevée reflète le fait que, dans une calibration globale
-à un paramètre, le modèle mobilise une dépendance forte pour générer suffisamment de pertes communes afin
-d’expliquer la structure des spreads de tranches. Le passage à une copule de Student ne supprime donc pas
-la nécessité d’une corrélation implicite élevée lorsque la calibration reste contrainte par une structure
-homogène.
+Nous remarquons que les modèles à corrélations déterministes estiment systématiquement une corrélation trop élevée sur la tranche equity
+mettant bien en relief le phénomène décrit précédemment. De manière générale un modèle ayant un smile plus plat s'approche plus du modèle
+"parfait" à corrélation constante selon la tranche. Pour cela nous pouvons déduire comme précédemment que les modèles BGL et à corrélation
+stochastique sont supérieurs aux trois autres.
 
-\begin{figure}[H]
+\begin{table}[H]
 \centering
-\includegraphics[width=0.8\textwidth]{images/Correlation Student.png}
-\caption{Evolution du coefficient de corrélation implicite pour la copule de Student à un facteur}
-\label{fig:corr_copule_student}
-\end{figure}
+\begin{tabular}{lcc}
+\toprule
+Modèle & RMSE log & Amplitude smile \\
+\midrule
+MC Gauss (RMSE abs) & 1.8546 & 0.6428 \\
+LHP Gauss (RMSE log) & 1.3156 & 0.6428 \\
+LHP t-Gauss & 0.8182 & 0.6338 \\
+LHP BGL & 0.5664 & 0.6145 \\
+LHP Vasicek Dyn. & 0.8300 & 0.6145 \\
+\bottomrule
+\end{tabular}
+\caption{Comparaison des RMSE log et de l'amplitude du smile de corrélation pour les différents modèles}
+\label{tab:RMSE_smile}
+\end{table}
 
-La Figure (\ref{fig:smile_student_1fact}) met en évidence un smile de corrélation implicite par tranche,
-analogue à celui observé dans le cadre gaussien. La corrélation implicite est élevée pour la tranche
-equity (attachement \(0\%\)) et atteint des valeurs très fortes au voisinage de l’attachement \(3\%\),
-puis chute fortement pour l’attachement \(7\%\) avant de remonter pour l’attachement \(15\%\).
-Ce profil indique que la dépendance requise par le marché n’est pas capturable par une unique corrélation
-\(\rho\) : chaque tranche « demande » un niveau différent de dépendance afin de reproduire son spread, ce
-qui se traduit par un smile persistant.
+\subsubsection{Coefficients calibrés}
 
-\begin{figure}[H]
+Les coefficients pour chacun des modèles sont référencés dans la Table \ref{tab:calibrated_parameters},
+on peut y lire les différentes corrélations implicites obtenues pour chaque modèle ainsi que les 
+paramètres de la copule t-gaussienne et du modèle BGL. Nous y avons également ajouté le poids $q$ de la 
+composante gaussienne dans le modèle BGL, la moyenne $\bar{\rho}$ et l'écart-type $\sigma(\rho)$ de la 
+distribution de corrélation dans ce même modèle.
+
+\begin{table}[H]
 \centering
-\includegraphics[width=0.8\textwidth]{images/Smile Correlation_ Student.png}
-\caption{Smile de corrélation implicite par tranche pour la copule de Student à un facteur}
-\label{fig:smile_student_1fact}
-\end{figure}
-
-Enfin, la Figure (\ref{fig:smile_moyen_student}) compare le smile moyen (moyenne des corrélations implicites
-par attachement) à la corrélation globale moyenne issue de la calibration. On observe que la corrélation
-globale moyenne ne reflète pas correctement la structure en smile, en particulier la forte exigence de
-dépendance sur les tranches basses et la remontée sur les tranches plus seniors. Cela confirme que, même
-avec une copule de Student, une spécification plus flexible est nécessaire pour améliorer l’ajustement des
-tranches mezzanine et senior (par exemple une structure sectorielle, une copule hiérarchique, ou des
-mélanges de copules).
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.8\textwidth]{images/SMILE moyen_ Student.png}
-\caption{Smile moyen et corrélation globale moyenne pour la copule de Student à un facteur}
-\label{fig:smile_moyen_student}
-\end{figure}
+\begin{tabular}{lccccccccc}
+\toprule
+Date & $\rho_{\text{MC abs}}$ & $\rho_{\text{LHP log}}$ & $\rho_{\text{t-g}}$ & $\nu_{\text{t-g}}$ & $\rho_{\text{BGL}_1}$ & $\rho_{\text{BGL}_2}$ & $q$ & $\bar{\rho}$ & $\sigma(\rho)$ \\
+\midrule
+2014/06/01 & 0.714 & 0.258 & 0.095 & 3.2 & 0.092 & 0.990 & 0.96 & 0.098 & 0.1689 \\
+2014/07/03 & 0.764 & 0.279 & 0.104 & 3.0 & 0.103 & 0.988 & 0.95 & 0.109 & 0.1770 \\
+2014/08/15 & 0.739 & 0.271 & 0.108 & 3.4 & 0.107 & 0.990 & 0.96 & 0.110 & 0.1777 \\
+2014/09/23 & 0.764 & 0.268 & 0.102 & 3.2 & 0.111 & 0.988 & 0.96 & 0.105 & 0.1741 \\
+2014/10/11 & 0.613 & 0.245 & 0.090 & 3.2 & 0.096 & 0.990 & 0.96 & 0.095 & 0.1667 \\
+2014/11/17 & 0.714 & 0.291 & 0.109 & 2.8 & 0.105 & 0.981 & 0.94 & 0.119 & 0.1836 \\
+2014/12/01 & 0.789 & 0.316 & 0.122 & 2.6 & 0.109 & 0.973 & 0.93 & 0.132 & 0.1920 \\
+2015/01/07 & 0.513 & 0.256 & 0.092 & 2.5 & 0.081 & 0.984 & 0.95 & 0.094 & 0.1658 \\
+2015/02/10 & 0.437 & 0.267 & 0.143 & 2.2 & 0.059 & 0.962 & 0.94 & 0.095 & 0.1667 \\
+2015/03/15 & 0.462 & 0.278 & 0.164 & 2.1 & 0.010 & 0.932 & 0.93 & 0.067 & 0.1423 \\
+\bottomrule
+\end{tabular}
+\caption{Coefficients calibrés pour les différents modèles}
+\label{tab:calibrated_parameters}
+\end{table}

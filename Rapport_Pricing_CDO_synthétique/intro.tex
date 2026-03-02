@@ -12,7 +12,7 @@ Dans ce contexte, une compréhension rigoureuse des mécanismes de valorisation 
 
 \subsection{Cadre probabiliste et hypothèses sur le taux instantané}
 
-\subsubsection{Espace probabilisé et filtration}\label{subsubsection:espace_prob_filtre}
+\subsubsection{Espace probabilisé et filtration}\label{subsubsec:espace_prob_filtre}
 
 Nous nous plaçons dans un espace probabilisé filtré 
 $(\Omega, \mathcal{F}, \mathbb{P}, (\mathcal{F}_t)_{t \geq 0})$. La filtration $\mathbb{F}:=(\mathcal{F}_t)_{t \geq 0}$ représente 
@@ -84,11 +84,11 @@ de \emph{taux instantané} (ou \emph{taux court}) $(r_t)_{t \ge 0}$ vérifiant l
     \item \textbf{(H1) Adaptation et mesurabilité :}
     $r_t$ est $(\mathcal{F}_t)$-progressivement mesurable.
     %
-    \item \textbf{(H2) Bornes ou conditions d'intégrabilité :}
+    \item \textbf{(H2) Intégrabilité :}
     $\displaystyle \int_0^T |r_s|\,ds < \infty$ p.s., ce qui garantit que 
     $B_t>0$ est bien défini et continu.
     %
-    \item \textbf{(H3) Modélisation stochastique :}
+    \item \textbf{(H3) Diffusion à coefficients Lipschitz :}
     $r_t$ est généralement supposé être une diffusion de la forme :
     \begin{equation}
         dr_t = \mu(t,r_t)\,dt + \sigma(t,r_t)\,dW_t,
@@ -98,7 +98,7 @@ de \emph{taux instantané} (ou \emph{taux court}) $(r_t)_{t \ge 0}$ vérifiant l
     assurant l'existence et l'unicité forte de la solution.
 \end{itemize}
 
-Cette fois, nous définissons l'équation différentielle stochatique suivante :
+\noindent Cette fois, nous définissons l'équation différentielle stochatique suivante :
 \begin{equation}
     \begin{cases}
         B_0 = 1 \\
@@ -318,14 +318,14 @@ Nous commençons donc par actualiser la valeur de $X$ en $T$ par le numéraire $
 risque conditionnellement à l'information disponible en $t$ c'est à dire $\mathcal{F}_t$. En normalisant par le
 numéraire à l'instant présent nous obtenons :
 \begin{equation}
-    \Pi_X(t,T) = N_t\, \mathbb{E}^{\mathbb{P}^*}\!\left[ \frac{X}{B_T} \,\middle|\, \mathcal{F}_t \right].
+    \Pi_X(t,T) = B_t\, \mathbb{E}^{\mathbb{P}^*}\!\left[ \frac{X}{B_T} \,\middle|\, \mathcal{F}_t \right].
 \end{equation}
 Cette formule suit directement de la propriété de martingale de $(\tilde S_t)$.
 
 A partir de cette formule il est possible de définir l'obligation zéro-coupon (i.e. à prix juste) sans risque,
 il s'agit d'un actif (une dette) ayant une revendication de 1€ au temps $T$ dont la valeur est donnée par
 \begin{equation}
-    D(t,T) = N_t\, \mathbb{E}^{\mathbb{P}^*}\!\left[ \frac{1}{B_T} \,\middle|\, \mathcal{F}_t \right]
+    D(t,T) = B_t\, \mathbb{E}^{\mathbb{P}^*}\!\left[ \frac{1}{B_T} \,\middle|\, \mathcal{F}_t \right]
 \end{equation}
 Il est alors possible de rentrer le terme $N_t$ dans l'espérance puisque celui-ci est constant conditionnellement
 à l'information $\mathcal{F}_t$ et en remplaçant par l'expression du numéraire nous obtenons :
@@ -334,11 +334,8 @@ Il est alors possible de rentrer le terme $N_t$ dans l'espérance puisque celui-
 \end{equation}
 Si le risque de contrepartie de l'émetteur du zéro-coupon n'est pas nul, l'évaluation du
 zéro-coupon doit tenir compte de la possibilité du défaut de celui-ci : deux nouveaux
-risques entrent en jeu :
-\begin{itemize}
-    \item l'instant de défaut,
-    \item la perte en cas de défaut (\emph{Loss Given Default}).
-\end{itemize}
+risques entrent en jeu : l'instant de défaut et la perte en cas de défaut (\emph{Loss Given Default}).
+
 La perte en cas de défaut s'exprime comme un taux de recouvrement $R$ éventuellement aléatoire et d'une hypothèse de
 recouvrement. Nous notons $D_\tau(t,T)$ la valeur en $t$ d'un zéro-coupon risqué de maturité $T$ et $\tau$ l'instant de
 défaut de l'émetteur de ce titre. Il existe plusieurs hypothèses de recouvrement en théorie des mathématiques financières

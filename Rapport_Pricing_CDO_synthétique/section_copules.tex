@@ -1,0 +1,172 @@
+\section{Modèles de copules pour le risque de défaut corrélé}
+
+Nous avons vu section \ref{subsubsec:modele_copule} qu'il est possible --- grâce au théorème de Sklar ---
+de reconstituer les dépendances entre les marginales via des copules afin d'obtenir la loi conjointe 
+des temps de défauts. Bien que la copule exacte soit inconnue il est possible d'utiliser des modèles
+paramétriques afin d'approximer cette structure de dépendances. Cette section aborde différentes
+classes de copules adaptées aux modèles de défauts corrélés.
+
+\subsection{La copule gaussienne à un facteur}\label{subsec:copule_gauss}
+
+La copule gaussienne constitue l'approche historiquement dominante pour la tarification
+des tranches de CDO depuis les travaux de Li (2000). Considérons les marginales 
+$F_i(t) = \mathbb{P}^*(\tau_i \leq t)$, la copule gaussienne suppose que les variables
+$\Phi^{-1}(F_i(\tau_i))$ suivent conjointement une loi normale multivariée de matrice de
+corrélation $\Sigma$, ce qui s'écrit
+\begin{equation}
+    C^\text{Gauss}_\Sigma(u_1, \ldots, u_n) = \Phi_\Sigma\bigl(\Phi^{-1}(u_1), \ldots, \Phi^{-1}(u_n)\bigr),
+\end{equation}
+où $\Phi$ désigne la fonction de répartition de la loi normale centrée réduite et $\Phi_\Sigma$ celle de
+$\mathcal{N}(0, \Sigma)$. Sous l'hypothèse de portefeuille homogène, on impose une corrélation uniforme
+$\rho$ entre toutes les paires d'entités, réduisant le problème à l'estimation d'un seul paramètre.
+La structure de dépendance se représente alors par des variables latentes corrélées sous un modèle à un facteur commun $M \sim \mathcal{N}(0,1)$ :
+\begin{equation}
+    X_i = \sqrt{\rho}\, M + \sqrt{1-\rho}\, \varepsilon_i,
+    \label{eq:facteur_gauss}
+\end{equation}
+où les $\varepsilon_i \sim \mathcal{N}(0,1)$ sont indépendants entre eux et indépendants de $M$.
+Nous pouvons remarquer que $X_i$ est une combinaison linéaire de gaussiennes et donc est elle-même une
+gaussienne qui, de plus, est centrée réduite. Nous retrouvons également que pour tout $i\neq j$, $\text{Cov}(X_i,X_j)=\rho$.
+
+Le défaut de l'entité $i$ avant la date $t$ est alors défini par l'évènement $\{X_i \leq c_i(t)\}$ où $c_i(t)$
+est un seuil à déterminer en faisant coïncider la probabilité de cet évènement avec celle donnée par la marginale
+correspondante :
+\begin{equation}
+    \mathbb{P}^\ast (X_i \leq c_i(t)) = F_i(t) .
+\end{equation}
+Une solution analytique est ici possible pour l'équation et nous obtenons $c_i(t) = \Phi^{-1}(F_i(t))$ et l'évènement
+de défaut de l'entité $i$ avant la date $t$ est donné par $X_i \leq \Phi^{-1}(F_i(t))$.
+
+La copule gaussienne ne présente aucune dépendance de queue : lorsque $\rho$ est fixé,
+la probabilité que deux entités fassent défaut simultanément lors d'un événement extrême tend
+vers zéro, ce qui constitue une limitation majeure face aux données observées en période de stress.
+
+\subsection{La copule de Student}
+
+Une extension naturelle de la copule gaussienne est la copule de Student, qui s'écrit
+\begin{equation}
+    C^t_{\Sigma,\nu}(u_1, \ldots, u_n) = t_{\Sigma,\nu}\bigl(t_\nu^{-1}(u_1), \ldots, t_\nu^{-1}(u_n)\bigr),
+\end{equation}
+où $t_\nu$ désigne la fonction de répartition de la loi de Student univariée à $\nu$ degrés de
+liberté, et $t_{\Sigma,\nu}$ celle de la loi de Student multivariée. Le paramètre $\nu$ contrôle
+l'épaisseur des queues de distribution : plus $\nu$ est faible, plus les défauts simultanés
+extrêmes sont favorisés. Lorsque $\nu \to \infty$, la copule de Student converge vers la copule
+gaussienne. Sa simulation repose sur la représentation stochastique suivante : on génère un
+vecteur gaussien $Z = (Z_1, \ldots, Z_n)$ de matrice de corrélation $\Sigma(\rho)$ via le même
+facteur commun~\eqref{eq:facteur_gauss}, puis on pose
+\begin{equation}
+    T_i = \frac{Z_i}{\sqrt{S/\nu}} \sim \mathcal{T}(\nu), \quad U_i = t_\nu(T_i),
+\end{equation}
+où $S \sim \chi^2(\nu)$ est une variable commune indépendante des $Z_i$ et $\mathcal{T}(\nu)$ désigne la
+loi de Student à $\nu$ degrés de liberté. Le vecteur $(U_i)$ suit
+alors une copule de Student de paramètres $(\rho, \nu)$.
+
+Comme précédemment le défaut de l'entité $i$ avant la date $t$ est défini comme l'évènement $\{T_i \leq c_i(t) \}$
+avec cette fois $c_i(t) = t_\nu^{-1}(F_i(t))$.
+
+\subsection{La copule t-gaussienne à un facteur (Hull-White)}
+
+La copule de Student attribue des queues épaisses à la fois au facteur systémique et aux
+chocs idiosyncratiques. Hull et White (2004) proposent une variante dans laquelle seul le
+facteur systémique présente des queues épaisses, les termes idiosyncratiques restant gaussiens.
+Le modèle à un facteur s'écrit
+\begin{equation}
+    X_i = \sqrt{\rho}\, \tilde{M} + \sqrt{1-\rho}\, \varepsilon_i,
+\end{equation}
+où $\tilde{M} \sim \mathcal{T}(\nu)$ est un facteur commun de Student à $\nu$ degrés de liberté et les
+$\varepsilon_i \sim \mathcal{N}(0,1)$ sont des termes idiosyncratiques gaussiens indépendants.
+Ce choix se justifie économiquement : les chocs de marché systémiques (crises de liquidité,
+effondrements sectoriels) ont une nature différente des défauts individuels, et leur modélisation
+par une loi à queues épaisses permet de générer des épisodes de défauts simultanés sans pour
+autant modifier le comportement de chaque entité prise isolément. 
+
+Une extension naturelle de ce modèle est la copule t-t (ou copule double t) pour laquelle
+$\tilde{M} \sim \mathcal{T}(\nu_1)$ est un facteur commun de Student à $\nu_1$ degrés de liberté 
+et les $\varepsilon_i \sim \mathcal{T}(\nu_2)$ sont des termes idiosyncratiques indépendants de Student.
+Cependant les tentatives de calibrations sont coûteuses et montrent dans notre cas d'étude que $\nu_2$
+devient très grand systématiquement et donc les $\varepsilon_i$ tendent vers des lois gaussiennes.
+Pour cette raison nous excluons ce modèle bien qu'il soit présent dans la littérature et nous
+resterons sur la copule t-gaussienne à un facteur.
+
+La variable $X_i$ n'a pas de loi connue explicite, mais conditionnellement
+au facteur $\tilde{M} = m$, les termes idiosyncratiques restant gaussiens, on obtient
+\begin{equation}
+    X_i \mid \tilde{M} = m \;\sim\; \mathcal{N}\!\left(\sqrt{\rho}\, m,\; 1-\rho\right).
+\end{equation}
+Ainsi l'évènement de défaut de l'entité $i$ avant $t$ conditionnellement au facteur commun $\tilde{M} = m$
+est donné par $\{ X_i \leq c_i(t) \mid \tilde{M} = m\}$ et en remarquant que 
+$Z_i = \frac{X_i - \sqrt{\rho}\, m,}{\sqrt{1-\rho}}$ est centrée réduite la probabilité de défaut conditionnelle
+s'écrit alors
+\begin{equation}
+    \mathbb{P}^\ast\bigl(\tau_i \leq t \mid \tilde{M} = m\bigr)
+    =\mathbb{P}^\ast\bigl(X_i \leq c_i(t) \mid \tilde{M} = m\bigr)
+    = \Phi\!\left(\frac{c_i(t) - \sqrt{\rho}\, m}{\sqrt{1-\rho}}\right) .
+\end{equation}
+Pour retrouver la probabilité de défaut marginale il suffit de prendre l'espérance risque neutre sur $\tilde{M}$
+cependant il est à présent impossible de trouver une solution analytique pour $c_i(t)$. Ainsi le seuil est 
+obtenu par inversion numérique de la fonction de répartition marginale de $X_i$ : 
+\begin{equation}
+    F_{X_i}(x) = \mathbb{E}^{\mathbb{P}^\ast}_{\tilde{M}}\left[\Phi\left(\frac{x - \sqrt{\rho}\,\tilde{M}}{\sqrt{1-\rho}}\right)\right] .
+\end{equation}
+Cette inversion est réalisée pour chaque date de paiement par la méthode de Newton-Raphson,
+comme détaillé en section~\ref{sec:methodes_numeriques}.
+
+\subsection{Le modèle de mélange de corrélations (BGL)}
+
+Burtschell, Gregory et Laurent (2009) proposent un modèle dans lequel la corrélation
+$\rho_B$ n'est pas fixe mais tirée d'un mélange discret à deux régimes. L'idée est de représenter
+explicitement une bimodalité entre un régime normal, où les défauts sont relativement indépendants,
+et un régime de crise, où ils sont fortement corrélés. Le facteur de risque systémique s'écrit
+\begin{equation}
+    \rho_B = \begin{cases} \rho_1 & \text{avec probabilité } q, \\ \rho_2 & \text{avec probabilité } 1-q, \end{cases}
+\end{equation}
+avec $0 < \rho_1 < \rho_2 < 1$ et $q \in (0,1)$. Conditionnellement au régime, la structure
+de dépendance reste gaussienne à un facteur, de sorte que
+\begin{equation}
+    X_i = \sqrt{\rho_B}\, M + \sqrt{1-\rho_B}\, \varepsilon_i,
+\end{equation}
+où $M, \varepsilon_i \sim \mathcal{N}(0,1)$ indépendants. Ce modèle à trois paramètres $(\rho_1, \rho_2, q)$
+autorise une flexibilité considérablement accrue pour reproduire simultanément les tranches
+equity et les tranches senior, qui requièrent des niveaux de dépendance opposés dans le cadre
+gaussien à un facteur. Le seuil définissant l'évènement de défaut est ici le même que pour le
+modèle à un facteur gaussien décrit section \ref{subsec:copule_gauss}, il en sera de même pour le
+modèle à corrélation stochastique décrit \ref{subsec:copule_cor_sto}.
+
+Sous l'approximation de grand portefeuille homogène (LHP, voir
+section~\ref{sec:methodes_numeriques}), la perte espérée de tranche se décompose comme
+\begin{equation}
+    \mathrm{ETL}_\text{BGL}(t) = q \cdot \mathrm{ETL}_\text{Vasicek}(\rho_1, t)
+    + (1-q) \cdot \mathrm{ETL}_\text{Vasicek}(\rho_2, t),
+\end{equation}
+ce qui ramène chaque évaluation à deux appels à la formule analytique du modèle de Vasicek,
+sans simulation Monte Carlo.
+
+\subsection{Le modèle de corrélation stochastique (Vasicek dynamique)}\label{subsec:copule_cor_sto}
+
+Une alternative continue au mélange discret est le modèle dit de corrélation stochastique,
+dans lequel $\rho$ est elle-même une variable aléatoire suivant une loi Bêta de paramètres
+$(\bar{\rho}\,\kappa, (1-\bar{\rho})\kappa)$, avec $\bar{\rho} \in (0,1)$ et $\kappa > 0$. Ce choix
+de loi est motivé par le fait que la distribution Bêta est de support $[0,1]$ et
+admet des formes unimodales, bimodales ou uniformes selon ses paramètres. On rappelle que pour
+$\rho \sim \text{Bêta}(a, b)$ avec $a = \bar{\rho}\,\kappa$ et $b = (1-\bar{\rho})\kappa$,
+\begin{equation}
+    \mathbb{E}^{\mathbb{P}^\ast}[\rho] = \bar{\rho}, \qquad \mathrm{Var}(\rho) = \frac{\bar{\rho}(1-\bar{\rho})}{\kappa+1},
+\end{equation}
+de sorte que $\kappa$ contrôle la concentration de la distribution autour de sa moyenne : lorsque
+$\kappa \to \infty$, la corrélation tend presque sûrement vers $\bar{\rho}$ et le modèle converge
+vers le modèle de Vasicek déterministe. Cette loi Beta est la distribution stationnaire du processus 
+de \emph{mean-reversion} contraint à $[0,1]$, appelé processus de diffusion de Jacobi (processus de 
+Ornstein-Uhlenbeck avec bruit multiplicatif) :
+\begin{equation}
+    d\rho_t = \kappa(\bar\rho - \rho_t)\,dt + \sigma_\rho\sqrt{\rho_t(1-\rho_t)}\,dW_t
+\end{equation}
+Conditionnellement à $\rho$, la structure de dépendance reste le modèle gaussien à un facteur.
+La perte espérée de tranche s'obtient alors par intégration sur la loi de $\rho$ :
+\begin{equation}
+    \mathrm{ETL}_\text{SR}(t) = \int_0^1 \mathrm{ETL}_\text{Vasicek}(\rho, t)\, f_\text{Bêta}(\rho)\, d\rho,
+\end{equation}
+où $f_\text{Bêta}$ est la densité de la loi $\text{Bêta}(\bar{\rho}\,\kappa, (1-\bar{\rho})\kappa)$.
+Cette intégrale unidimensionnelle est évaluée par quadrature de Gauss-Legendre, chaque nœud
+faisant lui-même appel à la formule analytique de Vasicek. Le modèle à deux paramètres $(\bar{\rho}, \kappa)$
+offre ainsi une représentation continue de l'incertitude sur la corrélation, là où le modèle BGL
+procède par mélange discret.

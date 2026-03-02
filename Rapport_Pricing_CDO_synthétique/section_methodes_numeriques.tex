@@ -1,0 +1,165 @@
+\section{Méthodes numériques}
+\label{sec:methodes_numeriques}
+
+\subsection{L'approximation de grand portefeuille homogène}
+
+La simulation Monte Carlo du portefeuille complet est coûteuse : pour chaque valeur candidate
+du paramètre de corrélation, il faut générer $M$ scénarios de $N$ temps de défaut corrélés, puis
+calculer les pertes de tranche pour toutes les dates de paiement. Lorsque $N$ est grand et que le
+portefeuille peut être supposé homogène, une approximation analytique, due à Vasicek (2002) et
+connue sous le nom de LHP (\emph{Large Homogeneous Portfolio}), permet d'éviter entièrement
+la simulation.
+
+Considérons un portefeuille de $N$ entités de même probabilité de défaut marginale $p(t) = F_i(t)$,
+de même taux de recouvrement $R$, et dont la structure de dépendance est décrite par le modèle
+gaussien à un facteur~\eqref{eq:facteur_gauss}. Conditionnellement au facteur systémique $M = m$,
+les indicateurs de défaut $\mathbb{1}_{\{\tau_i \leq t\}}$ sont indépendants et de loi de Bernoulli
+de paramètre
+\begin{equation}
+    q(m, t) = \Phi\!\left(\frac{\Phi^{-1}(F_i(t)) - \sqrt{\rho}\, m}{\sqrt{1-\rho}}\right).
+\end{equation}
+Par la loi forte des grands nombres appliquée conditionnellement à $M$, le taux de perte du
+portefeuille converge presque sûrement lorsque $N \to \infty$ vers
+\begin{equation}
+    \ell(t) \xrightarrow[N\to\infty]{\text{p.s.}} L(t) := (1-R)\, q(M, t).
+\end{equation}
+La distribution des pertes dans la limite LHP est donc entièrement déterminée par celle du
+facteur $M \sim \mathcal{N}(0,1)$. La perte espérée de la tranche $[K_1, K_2]$ à la date $t$ s'écrit
+par le théorème de transfert
+\begin{align}
+    \begin{split}
+    \mathrm{ETL}(t) & = \mathbb{E}^{\mathbb{P}^\ast}\!\left[\min\!\bigl(\max(L(t) - K_1, 0),\, K_2 - K_1\bigr)\right] \\
+    & = \int_{-\infty}^{+\infty} \min\!\bigl(\max((1-R)q(m,t) - K_1, 0),\, K_2-K_1\bigr)\, \phi(m)\, dm,
+    \label{eq:etl_lhp}
+    \end{split}
+\end{align}
+où $\phi$ est la densité de la loi normale centrée réduite. Cette intégrale unidimensionnelle est évaluée
+numériquement par une méthode de quadrature\footnote{Dans le code de simulation une méthode de quadrature
+de Gauss-Legendre (voir section \ref{subsec:Gauss_Leg}) est utilisée cependant l'espérance étant ici sur une loi gaussienne une quadrature de Gauss
+-Hermite pourrait être plus efficace. Néanmoins face à la régularité de la fonction la différence est négligeable
+sachant que les performances sont déjà largement suffisantes.}, ce qui réduit le calcul d'une espérance sur un
+portefeuille de taille arbitraire à une simple somme de quelques centaines de termes.
+
+\subsection{Quadrature de Gauss-Legendre}\label{subsec:Gauss_Leg}
+
+L'intégrale~\eqref{eq:etl_lhp} est calculée par une quadrature de Gauss-Legendre appliquée
+après troncature du domaine d'intégration à l'intervalle $[-6, 6]$, qui capture plus de
+$99.9999\,\%$ de la masse de $\mathcal{N}(0,1)$. On substitue $m \in [-6, 6]$ par le changement de
+variable affine $m = 6x$ avec $x \in [-1, 1]$, puis on approche l'intégrale par
+\begin{equation}
+    \int_{-6}^{6} g(m)\, dm \approx 6 \sum_{k=1}^{K} w_k\, g(6 x_k),
+\end{equation}
+où $(x_k, w_k)_{k=1,\ldots,K}$ sont les $K$ nœuds et poids de Gauss-Legendre sur
+$[-1,1]$ donnés l'algorithme de Golub-Welsh en calculant les valeurs propres et vecteurs propres 
+de la matrice de Jacobi
+\begin{equation}
+    \mathbf{L}_K =
+    \begin{bmatrix}
+        0   & a_1 & 0   & \dots  & 0      \\
+        a_1 & 0   & a_2 & \dots  & 0      \\
+        0   & a_2 & 0   & \ddots & \vdots \\
+        \vdots  & \vdots & \ddots   & \ddots & a_{n-1} \\
+        0  & 0 & \dots   & a_{n-1} & 0
+    \end{bmatrix},
+\end{equation}
+où $a_k = \frac{1}{\sqrt{4k^2-1}}$ pour $k\in[1, n-1]$. Les valeurs propres obtenues sont alors
+égales aux racines du $K$-ième polynôme de Legendre $L_K(x)$ donnant les nœuds $(x_k)_{k=1,\ldots,K}$
+et les poids correspondants sont donnés par
+\begin{equation}
+    w_k = 2\left[v^{(i)}_1\right]^2 , \quad k=1,\ldots,K,
+\end{equation}
+où $v^(i)_1$ désigne la première composante du $i$-ième vecteur propre normalisé de $\mathbf{L}_K$.
+
+Nous utilisons $K = 501$ nœuds dans l'ensemble des calculs, ce qui s'avère
+largement suffisant compte tenu de la régularité de l'intégrande. Les nœuds et poids sont
+précalculés une seule fois en début de session et réutilisés dans toutes les évaluations, afin
+de minimiser le coût des appels répétés lors de la calibration.
+
+La quadrature de Gauss-Legendre est préférée à une grille uniforme, car à nombre de points
+égal, l'erreur est exponentiellement plus petite pour des fonctions régulières. Pour le modèle
+de corrélation stochastique, une double quadrature est mise en œuvre : les nœuds extérieurs
+portent sur $\rho \in [0,1]$ selon la loi Bêta (31 nœuds), et les nœuds intérieurs portent sur
+$m \in [-6,6]$ selon la loi normale (501 nœuds), le tout évalué simultanément sur un tenseur
+de dimensions $(n_t, 31, 501)$ par opérations vectorisées.
+
+\subsection{Inversion numérique du seuil de défaut pour la copule t-gaussienne}
+
+Pour le modèle t-gaussien de Hull-White, le seuil de défaut $c(t)$ vérifiant
+$F_{X_i}(c_i(t)) = F_i(t)$ n'est pas disponible analytiquement, la loi marginale de $X_i$ étant un
+mélange de lois normales conditionnées par $\tilde{M} \sim \mathcal{T}(\nu_1)$. Le calcul de $c_i(t)$ pour
+chaque date de paiement requiert donc une résolution numérique de l'équation
+\begin{equation}
+    G(c) := \mathbb{E}^{\mathbb{P}^\ast}_{\tilde{M}}\!\left[\Phi\!\left(\frac{c - \sqrt{\rho}\,\tilde{M}}{\sqrt{1-\rho}}\right)\right] = F_i(t),
+\end{equation}
+où l'espérance est approchée par quadrature de Gauss-Legendre sur la densité de Student.
+Cette équation est résolue par la méthode de Newton-Raphson, dont l'itération s'écrit
+\begin{equation}
+    c^{(k+1)} = c^{(k)} - \frac{G(c^{(k)}) - p(t)}{G'(c^{(k)})},
+    \quad G'(c) = \mathbb{E}^{\mathbb{P}^\ast}_{\tilde{M}}\!\left[\frac{1}{\sqrt{1-\rho}}\,\phi\!\left(\frac{c - \sqrt{\rho}\,\tilde{M}}{\sqrt{1-\rho}}\right)\right].
+\end{equation}
+L'initialisation est effectuée avec $c^{(0)} = \Phi^{-1}(F_i(t))$ (valeur gaussienne), ce qui
+assure une convergence rapide en six à huit itérations environ. La procédure est vectorisée
+sur toutes les dates de paiement simultanément, de sorte que le coût marginal du calcul de
+$c_i(t)$ par rapport au cas gaussien demeure négligeable.
+
+\subsection{Simulation Monte Carlo et validation}
+
+Bien que le modèle LHP soit utilisé pour la calibration, la simulation Monte Carlo reste
+indispensable pour deux usages. D'une part, elle sert de référence de validation pour évaluer
+la qualité de l'approximation grand portefeuille sur le portefeuille fini de $n = 120$ noms.
+D'autre part, elle est utilisée pour le modèle gaussien lors de la calibration sur la RMSE
+absolue, suivant la pratique historique.
+
+L'algorithme de simulation est identique pour les modèles gaussien et t-gaussien : on génère
+$M = 10\,000$ scénarios du facteur systémique et des termes idiosyncratiques, on calcule les
+temps de défaut par inversion, puis les pertes de tranche à chaque date de paiement. Les
+spreads sont déduits par la condition d'absence d'arbitrage entre jambe premium et jambe
+protection. Pour limiter la variabilité numérique entre deux évaluations successives de la
+fonction objectif, la graine aléatoire est fixée avant chaque simulation.
+
+Les écarts entre les spreads LHP et Monte Carlo sont inférieurs à 5 points de base pour
+toutes les tranches et toutes les dates, ce qui valide l'approximation grand portefeuille pour
+un portefeuille de 120 noms.
+
+\subsection{Métriques et stratégies d'optimisation}
+
+Pour chaque date $i$ et chaque modèle, la calibration consiste à minimiser un écart entre les
+spreads de marché $(s_k^\text{mkt})_{k=1,\ldots,4}$ et les spreads du modèle $(s_k^\text{mod}(\theta))_{k=1,\ldots,4}$
+sur les quatre tranches. Deux métriques ont été considérées.
+
+\noindent La RMSE absolue, définie par
+\begin{equation}
+    \mathcal{L}_\text{abs}(\theta) = \sqrt{\frac{1}{4}\sum_{k=1}^{4}\bigl(s_k^\text{mod}(\theta) - s_k^\text{mkt}\bigr)^2},
+\end{equation}
+donne un poids dominant à la tranche equity dont les spreads sont de l'ordre de $400$ points
+de base, contre moins de $2$ points de base pour la tranche super-senior. Cette métrique a été
+utilisée historiquement et peut-être retrouvée dans la littérature. Elle est implémentée ici avec simulation Monte Carlo pour la copule
+gaussienne, afin de reproduire les résultats de la littérature.
+
+\noindent La RMSE logarithmique, définie par
+\begin{equation}
+    \mathcal{L}_\text{log}(\theta) = \sqrt{\frac{1}{4}\sum_{k=1}^{4}\ln\!\left(\frac{s_k^\text{mod}(\theta)}{s_k^\text{mkt}}\right)^2},
+\end{equation}
+traite toutes les tranches de manière équilibrée : une erreur multiplicative d'un facteur $r$
+contribue $\ln(r)^2$ quel que soit le niveau de spread. Cette métrique est utilisée pour la
+calibration LHP de la copule gaussienne et pour l'ensemble des modèles avancés.
+
+Pour chaque modèle, la procédure d'optimisation se déroule en deux étapes. Une recherche
+sur grille couvre l'espace des paramètres de manière exhaustive et fournit un point de départ
+à l'optimiseur local. Pour les modèles à un paramètre (copule gaussienne LHP), la grille est
+unidimensionnelle avec 200 valeurs de $\rho \in [0.01, 0.99]$. Pour les modèles à deux paramètres
+(t-gaussien, corrélation stochastique), une grille rectangulaire $15 \times 15$ est utilisée.
+Pour le modèle BGL à trois paramètres, une grille $10 \times 10 \times 10$ réduite à $\rho_1 \in [0.01, 0.5]$,
+$\rho_2 \in [0.5, 0.99]$ et $q \in [0.5, 0.99]$ est employée, exploitant la contrainte $\rho_1 < \rho_2$.
+
+Le raffinement local est effectué par l'algorithme de Nelder-Mead pour les modèles t-gaussien,
+BGL et corrélation stochastique, du fait de sa robustesse aux discontinuités numériques légères
+et de son absence de calcul de gradient. Pour la copule gaussienne LHP, le minimum de la fonction
+régulière est affiné par la méthode L-BFGS-B (méthode de Broyden-Fletcher-Goldfarb-Shanno), plus rapide grâce à l'information de second ordre
+approchée.
+
+Les paramètres calibrés et les spreads modèles associés sont sauvegardés dans des fichiers
+cache, ce qui permet d'éviter de relancer les calculs lors de modifications ultérieures du code
+d'affichage. Le calcul des smiles de corrélation implicite (inversion numérique de la formule
+LHP gaussienne sur les spreads du modèle calibré, par méthode de Brent) utilise également
+ces caches.
