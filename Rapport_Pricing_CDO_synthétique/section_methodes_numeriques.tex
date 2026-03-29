@@ -3,6 +3,7 @@
 
 \subsection{L'approximation de grand portefeuille homogène}
 
+
 La simulation Monte Carlo du portefeuille complet est coûteuse : pour chaque valeur candidate
 du paramètre de corrélation, il faut générer $M$ scénarios de $N$ temps de défaut corrélés, puis
 calculer les pertes de tranche pour toutes les dates de paiement. Lorsque $N$ est grand et que le
@@ -163,3 +164,116 @@ cache, ce qui permet d'éviter de relancer les calculs lors de modifications ult
 d'affichage. Le calcul des smiles de corrélation implicite (inversion numérique de la formule
 LHP gaussienne sur les spreads du modèle calibré, par méthode de Brent) utilise également
 ces caches.
+
+\subsection{Simulation du Modèle à Intensité Stochastique}
+
+Nous avons introduit en section 3.3.2 un modèle \textit{bottom-up} dans lequel l'intensité de défaut de chaque entité est décomposée en une composante idiosyncratique propre et une composante systémique commune. L'objet de cette sous-section est à présent de décrire le passage de cette dynamique continue à une procédure de simulation exploitable numériquement pour la tarification des tranches. L'idée générale consiste à simuler d'abord le facteur systémique commun, puis à en déduire les temps de défaut individuels conditionnellement à ce scénario macroéconomique.
+
+\subsubsection{Discrétisation d'Euler-Maruyama}
+
+On rappelle que le facteur systémique suit la dynamique de diffusion avec sauts
+$$
+d\lambda^{syst}(t)=\kappa\bigl(\theta-\lambda^{syst}(t)\bigr)\,dt+\sigma\sqrt{\lambda^{syst}(t)}\,dW(t)+dJ(t),
+$$
+où $W$ est un mouvement brownien standard et $J$ un processus de Poisson composé. Plus précisément, on écrit
+$$
+J(t)=\sum_{k=1}^{P(t)} Y_k,
+$$
+où $P(t)$ est un processus de Poisson d'intensité $\lambda_J$ et où les amplitudes de saut $Y_k$ sont i.i.d. de loi exponentielle de moyenne $\mu$.
+
+Pour la simulation, on se place sur une grille uniforme
+$$
+0=t_0<t_1<\cdots<t_K=T,
+\qquad
+\Delta t=t_{n+1}-t_n.
+$$
+En notant $\lambda_n^{syst}\approx \lambda^{syst}(t_n)$, le schéma d'Euler-Maruyama associé à cette EDS s'écrit
+$$
+\lambda_{n+1}^{syst}
+=
+\lambda_n^{syst}
++
+\kappa\bigl(\theta-\lambda_n^{syst}\bigr)\Delta t
++
+\sigma\sqrt{(\lambda_n^{syst})^{+}}\,\sqrt{\Delta t}\,Z_n
++
+\Delta J_n,
+$$
+où $Z_n \sim \mathcal{N}(0,1)$ et
+$$
+\Delta J_n=\sum_{k=1}^{\Delta P_n} Y_{n,k},
+\qquad
+\Delta P_n \sim \mathcal{P}(\lambda_J \Delta t).
+$$
+La notation $(x)^{+}=\max(x,0)$ est introduite afin d'éviter l'apparition de valeurs négatives dans le terme de diffusion. En pratique, après chaque itération, on remplace si nécessaire la valeur obtenue par sa partie positive, ce qui revient à projeter numériquement le processus sur $\mathbb{R}_{+}$.
+
+Cette discrétisation fournit une approximation trajectorielle de $\lambda^{syst}(t)$, mais la quantité réellement utilisée dans la simulation des défauts est son intensité intégrée. On calcule donc simultanément
+$$
+\Lambda^{syst}(t_n)=\int_0^{t_n}\lambda^{syst}(u)\,du
+$$
+par une sommation discrète de type rectangle :
+$$
+\Lambda^{syst}_{n+1}
+=
+\Lambda^{syst}_{n}
++
+\lambda_n^{syst}\Delta t,
+\qquad
+\Lambda^{syst}_0=0.
+$$
+Cette grandeur joue un rôle central, car dans les modèles à intensité la loi du temps de défaut s'exprime naturellement en fonction de l'intensité cumulée et non de l'intensité instantanée seule.
+
+\subsubsection{Algorithme de Monte Carlo et indépendance conditionnelle}
+
+La logique de simulation retenue est hiérarchique. Pour chaque scénario $m \in \{1,\dots,M\}$, on commence par générer une trajectoire complète du facteur systémique $\lambda^{syst}(t)$ sur la grille précédente, puis son intégrale cumulée $\Lambda^{syst}(t)$. Cette première étape fixe un environnement macroéconomique commun à l'ensemble du portefeuille.
+
+Une fois ce scénario systémique simulé, les intensités individuelles sont reconstruites selon la décomposition
+$$
+\lambda_i(t)=\lambda_i^{idio}(t)+\beta_i\lambda^{syst}(t),
+$$
+où $\lambda_i^{idio}(t)$ désigne l'intensité idiosyncratique de l'entité $i$ et $\beta_i \geq 0$ sa sensibilité au facteur commun. En intégrant cette relation sur $[0,t]$, on obtient
+$$
+\Lambda_i(t)=\int_0^t \lambda_i(u)\,du
+=
+\Lambda_i^{idio}(t)+\beta_i\Lambda^{syst}(t),
+$$
+avec
+$$
+\Lambda_i^{idio}(t)=\int_0^t \lambda_i^{idio}(u)\,du.
+$$
+
+La propriété essentielle du modèle est alors la suivante : conditionnellement à la trajectoire du facteur systémique, les temps de défaut $\tau_1,\dots,\tau_N$ deviennent indépendants. Autrement dit, toute la dépendance entre les noms du portefeuille est portée par le facteur commun ; une fois celui-ci fixé, les défauts peuvent être simulés séparément. Cette propriété est précisément celle qui rend la mise en œuvre Monte Carlo possible dans un cadre \textit{bottom-up}.
+
+Pour simuler le temps de défaut d'une entité $i$, on utilise la représentation classique des modèles à intensité. Soit $E_i$ une variable aléatoire de loi exponentielle standard :
+$$
+E_i \sim \mathrm{Exp}(1).
+$$
+Le temps de défaut est alors défini par
+$$
+\tau_i=\inf\left\{t\geq 0 \; ; \; \Lambda_i(t)\geq E_i\right\}.
+$$
+Cette construction est cohérente avec la formule de survie
+$$
+\mathbb{P}(\tau_i>t \mid \mathcal{F}_t)=\exp\left(-\Lambda_i(t)\right).
+$$
+Numériquement, sur la grille $(t_n)$, on recherche le premier indice $n$ tel que
+$$
+\Lambda_i(t_n)\geq E_i.
+$$
+Si un tel indice existe, le défaut de l'entité $i$ est enregistré sur l'intervalle $[t_{n-1},t_n]$ ; sinon, l'entité survit jusqu'à la maturité $T$. Ainsi, pour chaque scénario systémique simulé, on obtient un vecteur complet de temps de défaut $(\tau_1,\dots,\tau_N)$ pour les $N=125$ noms du portefeuille.
+
+Une fois ces temps simulés, on calcule la perte cumulée du portefeuille
+$$
+L(t)=\sum_{i=1}^{N} N_i(1-R_i)\mathbf{1}_{\{\tau_i\leq t\}},
+$$
+puis la perte de tranche associée, définie à partir des points d'attachement et de détachement comme dans la section 4. Les jambes premium et protection sont alors évaluées scénario par scénario, puis moyennées sur les $M$ trajectoires de Monte Carlo. Nous obtenons ainsi une approximation numérique de la perte espérée de tranche, puis du spread équitable du contrat.
+
+\subsubsection{Choix et fixation des paramètres}
+
+En théorie, il serait possible de calibrer directement les cinq paramètres du facteur systémique à sauts,
+$$
+(\kappa,\theta,\sigma,\mu,\lambda_J),
+$$
+sur les données de marché. En pratique, une telle démarche serait peu robuste dans notre cadre d'étude. En effet, nous ne disposons que de $10$ dates de marché et de $4$ tranches observées par date, ce qui reste très insuffisant pour identifier de manière stable les cinq paramètres d'un processus affine avec diffusion et sauts. Plusieurs combinaisons de paramètres peuvent produire des effets voisins sur les spreads, notamment par compensation entre la volatilité $\sigma$, l'intensité de saut $\lambda_J$ et la taille moyenne des sauts $\mu$. La fonction objectif devient alors mal conditionnée, avec apparition de minima locaux, forte sensibilité aux conditions initiales et risque important de \textit{sur-ajustement}.
+
+Pour cette raison, nous avons choisi de ne pas recalibrer intégralement la dynamique du facteur systémique à partir de notre seul échantillon. Les paramètres structurels du processus sont fixés à partir d'ordres de grandeur issus de la littérature classique, en particulier les travaux de Duffie et Gârleanu sur la valorisation des CDO. Ce choix méthodologique permet d'isoler plus proprement le rôle de la structure de dépendance induite par le facteur commun et par les sauts. Autrement dit, l'objectif n'est pas ici d'obtenir une calibration exhaustive du processus $\lambda^{syst}$, mais d'évaluer dans quelle mesure l'introduction d'une intensité systémique stochastique, éventuellement discontinue, permet d'améliorer la description conjointe des défauts et d'aplatir le \textit{smile} de corrélation observé empiriquement. Dans cette optique, la fixation des paramètres n'est pas une restriction arbitraire, mais une condition de stabilité numérique et de lisibilité économique des résultats.

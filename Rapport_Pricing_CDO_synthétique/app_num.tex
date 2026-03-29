@@ -171,3 +171,86 @@ Date & $\rho_{\text{MC abs}}$ & $\rho_{\text{LHP log}}$ & $\rho_{\text{t-g}}$ & 
 \caption{Coefficients calibrés pour les différents modèles}
 \label{tab:calibrated_parameters}
 \end{table}
+
+
+
+
+\subsection{Résultats du Modèle à Intensité}
+
+Nous présentons dans cette sous-section les résultats obtenus par simulation Monte Carlo pour le modèle à intensité stochastique avec sauts appliqué au portefeuille de référence. Les quantités reportées ci-dessous correspondent aux valeurs estimées des jambes de protection et de premium, ainsi qu'au spread implicite obtenu pour chaque tranche du portefeuille.
+
+\begin{table}[H]
+\centering
+\caption{Résultats de simulation du modèle à intensité stochastique}
+\label{tab:resultats_modele_intensite}
+\small
+\setlength{\tabcolsep}{3.5pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Tranche} &
+\textbf{Att.} &
+\textbf{Det.} &
+\begin{tabular}[c]{@{}c@{}}\textbf{Protection}\\\textbf{Leg}\end{tabular} &
+\begin{tabular}[c]{@{}c@{}}\textbf{Premium Leg}\\\textbf{(1bp)}\end{tabular} &
+\begin{tabular}[c]{@{}c@{}}\textbf{Spread}\\\textbf{(bps)}\end{tabular} \\
+\midrule
+Equity [0,3\%]    & 0\%  & 3\%   & 0.953385 & 1.516761 & 6285.66 \\
+Mezz I [3,7\%]    & 3\%  & 7\%   & 0.613332 & 3.658502 & 1676.46 \\
+Mezz II [7,15\%]  & 7\%  & 15\%  & 0.185976 & 4.692054 & 396.36 \\
+Senior [15,100\%] & 15\% & 100\% & 0.004515 & 4.975289 & 9.07 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Les statistiques de diagnostic associées à cette simulation sont les suivantes :
+\begin{itemize}
+    \item Nombre moyen de defaults en $T=5a$ : $15.02$.
+    \item ETL Equity en $T=5a$ : $95.5532\%$.
+    \item ETL Senior en $T=5a$ : $0.4539\%$.
+\end{itemize}
+
+D'abord, nous observons une hiérarchie très marquée des spreads entre les différentes tranches, conforme à la structure de subordination du CDO. La tranche equity concentre l'essentiel du risque de défaut agrégé et présente logiquement le spread le plus élevé, de l'ordre de $6285.66$ points de base. Cette valeur est cohérente avec une perte espérée finale extrêmement importante sur cette tranche, ce que confirme l'ETL de $95.5532\%$ à maturité. Autrement dit, dans le cadre de cette simulation, la tranche equity est presque intégralement consommée en espérance, ce qui traduit un environnement de crédit très dégradé relativement à la taille de cette première couche de protection.
+
+Les deux tranches mezzanine présentent ensuite une décroissance nette des spreads, avec respectivement $1676.46$ bps pour la tranche $[3,7]\%$ et $396.36$ bps pour la tranche $[7,15]\%$. Cette diminution s'explique naturellement par l'augmentation du point d'attachement : plus une tranche est élevée dans la structure du capital, plus elle est protégée contre les pertes modérées du portefeuille et ne devient sensible qu'aux scénarios de stress les plus sévères. Nous retrouvons ainsi une lecture économique classique de la structure en tranches : la tranche equity absorbe les pertes fréquentes, les tranches mezzanine absorbent les pertes intermédiaires, tandis que la tranche senior n'est atteinte que dans des configurations extrêmes.
+
+Un point particulièrement important concerne précisément la tranche senior $[15,100]\%$. Le spread obtenu reste faible en niveau absolu, avec $9.07$ bps, mais il demeure strictement positif. De même, l'ETL senior à maturité n'est pas nulle et atteint $0.4539\%$. Ce résultat est essentiel car il indique que le modèle attribue une probabilité non nulle à des pertes suffisamment importantes pour atteindre la partie haute de la structure de capital. Contrairement aux modèles statiques de copule à un facteur, pour lesquels les tranches supérieures ne reçoivent un spread significatif qu'au prix d'une corrélation implicite artificiellement élevée, le modèle à intensité avec sauts génère ici ce risque de manière endogène par la dynamique du facteur systémique.
+
+Nous pouvons également remarquer que le nombre moyen de défauts à l'horizon $T=5$ ans, égal à $15.02$ sur un portefeuille de $125$ noms, reste élevé au regard du contexte de marché de la période 2014--2015 étudiée dans notre application numérique. Ce point suggère que les paramètres structurels retenus induisent un environnement de stress plus sévère que celui observé empiriquement sur les données considérées. En ce sens, le modèle ne doit pas être interprété ici comme fournissant le meilleur ajustement ponctuel aux spreads de marché, mais plutôt comme une démonstration de sa capacité structurelle à produire des épisodes de défauts groupés et des pertes de queue. 
+
+Une dernière remarque concerne l'origine même de la dépendance entre défauts dans cette approche. Dans les modèles de copules, cette dépendance est imposée de manière statique par un paramètre de corrélation. Ici, elle émerge dynamiquement de la composante systémique commune et de ses sauts. Une hausse continue du facteur systémique augmente progressivement les intensités individuelles, tandis qu'un saut provoque une détérioration brutale et simultanée du crédit sur l'ensemble du portefeuille. Le mécanisme de dépendance est donc non seulement plus réaliste économiquement, mais également mieux adapté à la génération de pertes extrêmes sur les tranches supérieures.
+
+Contrairement à la copule gaussienne qui peine à générer des pertes extrêmes sans forcer des corrélations irréalistes, le modèle à intensité stochastique avec sauts produit naturellement un spread significatif pour la tranche Super-Senior (9.07 bps) et une perte espérée non nulle (0.45\%). Les sauts du processus de Poisson modélisent efficacement les crises systémiques, provoquant des vagues de défauts simultanés. Bien que les paramètres structurels historiques (Duffie \& Gârleanu) génèrent un environnement de stress supérieur à la période particulièrement calme de 2014-2015 de notre jeu de données, cette simulation prouve la supériorité mécanique du modèle dynamique : il capture le risque de queue (tail risk) et offre une solution structurelle au problème du smile de corrélation.
+
+\subsection{Comparaison des Modèles : Copules vs Intensité Stochastique}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{images/correlation_smile.png}
+    \caption{Comparaison entre les spreads générés par le modèle à intensité stochastique avec sauts et la frontière de réplication du modèle gaussien LHP. L'absence de solution pour les tranches Equity et Mezzanine met en évidence le caractère \textit{out-of-model} de ces spreads dans le cadre de la copule gaussienne, tandis que la tranche Senior admet une corrélation implicite élevée, illustrant l'origine structurelle du smile de corrélation.}
+    \label{fig:correlation_smile}
+\end{figure}
+
+Nous cherchons à présent à comparer directement les résultats obtenus avec le modèle à intensité stochastique avec sauts à ceux du modèle gaussien LHP utilisé comme référence dans l'ensemble de notre étude. L'idée n'est plus ici de calibrer la copule gaussienne sur les spreads de marché, mais de l'utiliser comme un simple outil de mesure afin de traduire les spreads générés par le modèle d'intensité en corrélations implicites. Cette démarche est proche de la pratique de marché dite de \textit{compound correlation} : pour chaque tranche, on cherche la valeur $\rho^{\ast}$ telle que le spread produit par le modèle gaussien soit égal au spread fourni par le modèle dynamique. Autrement dit, on cherche à résoudre numériquement l'équation
+$$
+Spread_{LHP}(\rho)-Spread_{Intensite}=0.
+$$
+La Figure \ref{fig:correlation_smile} résume le résultat de cette inversion pour les quatre tranches du portefeuille et met en évidence une différence fondamentale entre les deux familles de modèles.
+
+\subsubsection{Inexistence de la corrélation implicite : le phénomène \textit{Out-of-Model}}
+
+Le premier résultat marquant est l'échec de l'algorithme de recherche de racine pour les tranches Equity et Mezzanine. Pour ces tranches, les spreads produits par le modèle à intensité avec sauts sont si élevés qu'ils demeurent au-dessus de la frontière maximale accessible au modèle gaussien LHP, même lorsque $\rho$ tend vers $1$. Autrement dit, la fonction $\rho \mapsto Spread_{LHP}(\rho)$ ne coupe jamais le niveau imposé par le modèle d'intensité, de sorte qu'aucune corrélation implicite admissible ne peut être définie. Les spreads obtenus sont donc \textit{hors modèle} au sens où ils appartiennent à une région de prix inaccessible à la copule gaussienne.
+
+Ce phénomène s'explique directement par la structure probabiliste des deux approches. La copule gaussienne repose sur une dépendance induite par un facteur latent normal. Même si ce facteur commun permet de corréler les défauts, il conserve des queues fines et attribue donc une probabilité relativement faible aux événements extrêmes de pertes massives. A l'inverse, le modèle à intensité stochastique introduit explicitement un processus de Poisson composé $dJ_t$ dans la dynamique du facteur systémique. Les sauts de ce processus représentent des chocs macroéconomiques brutaux, capables d'augmenter simultanément un grand nombre d'intensités individuelles et de provoquer des vagues de défauts groupés. La masse de probabilité est alors déplacée vers les queues de distribution, ce qui engendre des \textit{fat tails} que la copule gaussienne n'est pas structurellement capable de reproduire. L'inexistence de $\rho^{\ast}$ n'est donc pas un accident numérique mais la manifestation directe d'une insuffisance du modèle gaussien face au risque de queue.
+
+\subsubsection{Le cas révélateur de la tranche Senior et l'origine du smile}
+
+Le seul cas pour lequel une corrélation implicite valide peut être obtenue est celui de la tranche Senior. La Figure \ref{fig:correlation_smile} indique alors une valeur de l'ordre de $65\%$, c'est-à-dire un niveau de corrélation particulièrement élevé pour un portefeuille investment grade. Ce résultat est très révélateur. Pour justifier, dans un modèle statique, un spread non négligeable sur une tranche aussi protégée, il faut artificiellement concentrer la distribution des pertes sur des scénarios où un très grand nombre de défauts surviennent simultanément. La copule gaussienne ne pouvant créer cette dépendance extrême qu'en augmentant fortement son unique paramètre de corrélation, elle est contrainte de forcer $\rho$ à des niveaux très élevés.
+
+Or un tel choix ne peut pas être cohérent sur l'ensemble de la structure du capital. En effet, imposer une corrélation globale de l'ordre de $65\%$ modifierait profondément la tarification des tranches inférieures. Les premières pertes deviendraient alors moins fréquentes mais beaucoup plus concentrées, ce qui écraserait la valorisation relative des tranches Equity et Mezzanine et conduirait à un désalignement avec les spreads effectivement générés par le modèle dynamique. Nous retrouvons ici, sous une autre forme, le phénomène du \textit{smile} de corrélation déjà mis en évidence dans les sections précédentes : chaque tranche réclame en réalité sa propre corrélation implicite parce qu'un paramètre statique unique ne peut pas réconcilier simultanément le risque fréquent des tranches basses et le risque extrême des tranches hautes.
+
+\subsubsection{Interprétation économique de la comparaison}
+
+Plusieurs observations peuvent être faites à partir de cette comparaison. Tout d'abord, le modèle à intensité stochastique avec sauts produit naturellement une structure de pertes dans laquelle coexistent des défauts idiosyncratiques usuels et des épisodes de crise systémique. Cette coexistence permet de tarifer à la fois les tranches inférieures, sensibles à la fréquence des pertes, et les tranches supérieures, sensibles aux événements rares mais sévères. Ensuite, la copule gaussienne apparaît ici moins comme un véritable concurrent que comme un révélateur de ses propres limites : dès lors que les spreads d'une tranche sortent de son domaine atteignable, elle ne fournit plus une approximation imparfaite, mais cesse simplement d'être un cadre valide pour représenter la distribution des pertes.
+
+Cette lecture permet également de mieux comprendre la signification économique du \textit{smile}. Celui-ci ne doit pas être interprété comme une anomalie exogène du marché ou comme une imperfection passagère de calibration. Il est au contraire le symptôme d'un décalage entre la structure réelle du risque de crédit et le cadre trop rigide du modèle de copule utilisé pour le mesurer. Lorsque le marché valorise implicitement un risque de queue que la copule ne sait pas engendrer, celle-ci répond en déformant tranche par tranche la corrélation implicite, d'où l'apparition d'un \textit{skew} ou d'un \textit{smile}.
