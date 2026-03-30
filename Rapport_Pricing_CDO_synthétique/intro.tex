@@ -232,22 +232,17 @@ où $a,b,\sigma>0$ et $r_0>0$.
 \textbf{Solution du processus et loi marginale.}
 
 Contrairement au modèle de Vasicek, il n’existe pas de représentation explicite du type intégrale stochastique fermée pour $r_t$.  
-Néanmoins, la loi marginale de $r_t$ est connue explicitement : $r_t$ suit une loi du $\chi^2$ non centrale (après renormalisation). Plus précisément, pour tout $t>0$, la distribution conditionnelle de $r_t$ sachant $r_0$ est une loi du $\chi^2$ non centrale.
+Néanmoins, la loi marginale de $r_t$ est connue explicitement. $r_t$ suit une loi du $\chi^2$ non centrée (après renormalisation). Plus précisément, pour tout $t>0$, la distribution conditionnelle de $r_t$ sachant $r_0$ est une loi du $\chi^2$ non centrale.
 
 Cette propriété permet notamment une simulation exacte du processus, sans schéma d’Euler.
 
 \medskip
 
-\paragraph{Conclusion et ouverture vers d’autres modèles}
+\textbf{Conclusion et ouverture vers d’autres modèles}
 
-\vspace{0.5cm}
-
-Les modèles de Vasicek et de CIR constituent deux cadres de référence pour la modélisation du taux court. Ils permettent tous les deux d’obtenir des formules semi-explicites pour les prix des obligations zéro-coupon.
-Cependant, ces modèles reposent sur des hypothèses structurelles relativement simples, ce qui peut limiter leur capacité à reproduire finement la structure par terme observée sur les marchés.
-
-Dans la littérature, on retrouve des modèles plus généraux, tels que le modèle de Hull--White, qui introduit des paramètres dépendant du temps, ou encore les modèles multifactoriels, comme le modèle G2++ permettant de mieux capturer la dynamique de la courbe des taux.
-Néanmoins, les modèles de Vasicek et de CIR conservent un intérêt majeur dans un cadre pédagogique car ils permettent de simuler efficacement les trajectoires du taux court.
-
+Les modèles de Vasicek et CIR permettent tous deux d'obtenir des formules semi-explicites pour les obligations zéro-coupon, ce qui en fait des modèles de référence malgré leurs hypothèses simplificatrices.
+Leurs paramètres constants les empêchent cependant de calibrer exactement une courbe de taux observée. Il s'agit d'une limitation, que corrigent des modèles plus complexes comme Hull--White ou G2++, au prix d'une implémentation plus lourde.
+Ils restent néanmoins des bases solides pour comprendre la simulation de taux court et les méthodes numériques associées.
 
 \subsubsection{Hypothèse d'absence d'arbitrage et existence de la mesure risque-neutre}
 

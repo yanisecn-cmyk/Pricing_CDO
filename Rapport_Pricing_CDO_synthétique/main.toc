@@ -1,0 +1,57 @@
+\babel@toc {french}{}\relax 
+\contentsline {section}{\numberline {1}Introduction}{2}{section.1}%
+\contentsline {subsection}{\numberline {1.1}Motivation}{2}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}Cadre probabiliste et hypothèses sur le taux instantané}{2}{subsection.1.2}%
+\contentsline {subsubsection}{\numberline {1.2.1}Espace probabilisé et filtration}{2}{subsubsection.1.2.1}%
+\contentsline {subsubsection}{\numberline {1.2.2}Intérêts composés, numéraire et taux instantanés}{3}{subsubsection.1.2.2}%
+\contentsline {paragraph}{Cas déterministe}{3}{section*.2}%
+\contentsline {paragraph}{Cas stochastique}{3}{section*.3}%
+\contentsline {subsubsection}{\numberline {1.2.3}Hypothèses sur $r_t$}{4}{subsubsection.1.2.3}%
+\contentsline {paragraph}{Modèle de Vasicek}{5}{section*.4}%
+\contentsline {paragraph}{Modèle CIR (Cox--Ingersoll--Ross)}{5}{section*.5}%
+\contentsline {subsubsection}{\numberline {1.2.4}Hypothèse d'absence d'arbitrage et existence de la mesure risque-neutre}{6}{subsubsection.1.2.4}%
+\contentsline {subsection}{\numberline {1.3}Le modèle de crédit}{7}{subsection.1.3}%
+\contentsline {section}{\numberline {2}Produits dérivés de crédit}{8}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Credit Default Swap}{8}{subsection.2.1}%
+\contentsline {subsubsection}{\numberline {2.1.1}Description du produit}{8}{subsubsection.2.1.1}%
+\contentsline {subsubsection}{\numberline {2.1.2}Évaluation de la marge d’un CDS}{9}{subsubsection.2.1.2}%
+\contentsline {paragraph}{Jambe fixe (premium leg).}{10}{section*.8}%
+\contentsline {paragraph}{Jambe variable (protection leg).}{10}{section*.9}%
+\contentsline {paragraph}{Détermination du spread.}{10}{section*.10}%
+\contentsline {subsection}{\numberline {2.2}Collateralized Debt Obligation}{10}{subsection.2.2}%
+\contentsline {subsubsection}{\numberline {2.2.1}Titrisation}{11}{subsubsection.2.2.1}%
+\contentsline {subsubsection}{\numberline {2.2.2}Les produits synthétiques}{12}{subsubsection.2.2.2}%
+\contentsline {section}{\numberline {3}Modélisation du risque de défaut}{13}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Les modèles à intensité}{13}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Modélisation du risque d'un CDS}{14}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}Défauts corrélés}{15}{subsection.3.3}%
+\contentsline {subsubsection}{\numberline {3.3.1}Modèles de copules}{15}{subsubsection.3.3.1}%
+\contentsline {subsubsection}{\numberline {3.3.2}Modèles à intensité stochastique}{15}{subsubsection.3.3.2}%
+\contentsline {section}{\numberline {4}Pricing des tranches de CDO synthétiques}{16}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Structure et définition mathématique des tranches}{16}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}La perte espérée de tranche}{17}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Valorisation des jambes et hypothèse d'indépendance}{17}{subsection.4.3}%
+\contentsline {subsubsection}{\numberline {4.3.1}Jambe protection}{18}{subsubsection.4.3.1}%
+\contentsline {subsubsection}{\numberline {4.3.2}Jambe premium}{18}{subsubsection.4.3.2}%
+\contentsline {subsubsection}{\numberline {4.3.3}Spread équitable}{18}{subsubsection.4.3.3}%
+\contentsline {section}{\numberline {5}Modèles de copules pour le risque de défaut corrélé}{18}{section.5}%
+\contentsline {subsection}{\numberline {5.1}La copule gaussienne à un facteur}{19}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}La copule de Student}{19}{subsection.5.2}%
+\contentsline {subsection}{\numberline {5.3}La copule t-gaussienne à un facteur (Hull-White)}{20}{subsection.5.3}%
+\contentsline {subsection}{\numberline {5.4}Le modèle de mélange de corrélations (BGL)}{20}{subsection.5.4}%
+\contentsline {subsection}{\numberline {5.5}Le modèle de corrélation stochastique (Vasicek dynamique)}{21}{subsection.5.5}%
+\contentsline {section}{\numberline {6}Méthodes numériques}{22}{section.6}%
+\contentsline {subsection}{\numberline {6.1}L'approximation de grand portefeuille homogène}{22}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}Quadrature de Gauss-Legendre}{22}{subsection.6.2}%
+\contentsline {subsection}{\numberline {6.3}Inversion numérique du seuil de défaut pour la copule t-gaussienne}{23}{subsection.6.3}%
+\contentsline {subsection}{\numberline {6.4}Simulation Monte Carlo et validation}{24}{subsection.6.4}%
+\contentsline {subsection}{\numberline {6.5}Métriques et stratégies d'optimisation}{24}{subsection.6.5}%
+\contentsline {section}{\numberline {7}Application numérique}{25}{section.7}%
+\contentsline {subsection}{\numberline {7.1}Simulations des numéraires}{25}{subsection.7.1}%
+\contentsline {subsubsection}{\numberline {7.1.1}Visualisation de trajectoires de référence}{27}{subsubsection.7.1.1}%
+\contentsline {subsection}{\numberline {7.2}Jeu de données}{28}{subsection.7.2}%
+\contentsline {subsection}{\numberline {7.3}Tarification de tranches par méthodes de copules}{28}{subsection.7.3}%
+\contentsline {subsubsection}{\numberline {7.3.1}Spread calibrés sur tranches}{28}{subsubsection.7.3.1}%
+\contentsline {subsubsection}{\numberline {7.3.2}Smile de corrélation}{31}{subsubsection.7.3.2}%
+\contentsline {subsubsection}{\numberline {7.3.3}Coefficients calibrés}{32}{subsubsection.7.3.3}%
+\contentsline {section}{\numberline {8}Conclusion}{33}{section.8}%

@@ -1,0 +1,11 @@
+\babel@toc {french}{}\relax 
+\contentsline {figure}{\numberline {1}{\ignorespaces Schéma de transaction d'un CDS sans défaut}}{9}{figure.caption.6}%
+\contentsline {figure}{\numberline {2}{\ignorespaces Schéma de transaction d'un CDS dans le cas d'un défaut}}{9}{figure.caption.7}%
+\contentsline {figure}{\numberline {3}{\ignorespaces Méchanisme d'émission d'un CDO}}{11}{figure.caption.11}%
+\contentsline {figure}{\numberline {4}{\ignorespaces Distribution des tranches et effet "\emph {waterfall}" d'un CDO}}{12}{figure.caption.12}%
+\contentsline {figure}{\numberline {5}{\ignorespaces Trajectoires de numéraires et $r_t$de référence pour les modèles de Vasicek et CIR}}{27}{figure.caption.13}%
+\contentsline {figure}{\numberline {6}{\ignorespaces Spread calibré pour les tranches du CDX NA IG Series 19}}{29}{figure.caption.15}%
+\contentsline {figure}{\numberline {7}{\ignorespaces Evolution de la perte espérée par tranche en fonction de la corrélation sous modèle LHP}}{30}{figure.caption.16}%
+\contentsline {figure}{\numberline {8}{\ignorespaces Evolution des correlations implicites estimées par les différents modèles}}{30}{figure.caption.17}%
+\contentsline {figure}{\numberline {9}{\ignorespaces Comparaison des RMSE logarithmiques pour les différents modèles}}{31}{figure.caption.18}%
+\contentsline {figure}{\numberline {10}{\ignorespaces Corrélation implicite en fonction de la tranche}}{32}{figure.caption.19}%
